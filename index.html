@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bangladesh Primary School Management</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Bangladesh Primary School Management Portal</h1>
+    <p>Manage student records and generate academic documents.</p>
+  </header>
+  <nav class="menu-bar" aria-label="Main navigation">
+    <a href="#registration">Student Registration</a>
+    <a href="#marks">Marks Entry</a>
+    <a href="#students">Students List</a>
+    <a href="#documents">Document Generator</a>
+  </nav>
+
+  <main>
+    <section id="registration" class="card">
+      <h2>Student Registration</h2>
+      <form id="studentForm">
+        <div class="grid">
+          <label>Student ID <input required name="id" placeholder="e.g. 2026-001" /></label>
+          <label>Full Name <input required name="name" placeholder="Student name" /></label>
+          <label>Class
+            <select required name="className">
+              <option value="">Select class</option>
+              <option>Class 1</option>
+              <option>Class 2</option>
+              <option>Class 3</option>
+              <option>Class 4</option>
+              <option>Class 5</option>
+            </select>
+          </label>
+          <label>Section <input required name="section" placeholder="A/B/C" /></label>
+          <label>Roll <input required type="number" min="1" name="roll" /></label>
+          <label>Guardian Name <input required name="guardian" /></label>
+          <label>Mobile <input required name="mobile" placeholder="01XXXXXXXXX" /></label>
+          <label>Date of Birth <input required type="date" name="dob" /></label>
+        </div>
+        <button type="submit">Save Student</button>
+      </form>
+    </section>
+
+    <section id="marks" class="card">
+      <h2>Marks Entry</h2>
+      <form id="marksForm">
+        <div class="grid">
+          <label>Student
+            <select required id="marksStudentId" name="id"></select>
+          </label>
+          <label>Bangla <input required type="number" min="0" max="100" name="bangla" /></label>
+          <label>English <input required type="number" min="0" max="100" name="english" /></label>
+          <label>Math <input required type="number" min="0" max="100" name="math" /></label>
+          <label>Science <input required type="number" min="0" max="100" name="science" /></label>
+          <label>Religion <input required type="number" min="0" max="100" name="religion" /></label>
+        </div>
+        <button type="submit">Save Marks</button>
+      </form>
+    </section>
+
+    <section id="students" class="card">
+      <h2>Students</h2>
+      <div class="toolbar">
+        <label>Select Student
+          <select id="studentSelector"></select>
+        </label>
+        <button id="deleteBtn" class="danger">Delete Selected</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Name</th><th>Class</th><th>Section</th><th>Roll</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="documents" class="card docs">
+      <h2>Document Generator</h2>
+      <div class="doc-buttons">
+        <button data-doc="admit">Generate Admit Card</button>
+        <button data-doc="seat">Generate Seat Plan</button>
+        <button data-doc="progress">Generate Progress Report</button>
+        <button data-doc="tabulation">Generate Tabulation Sheet</button>
+        <button data-doc="marksheet">Generate Marksheet</button>
+      </div>
+      <article id="documentOutput" class="output"></article>
+      <button id="printBtn">Print Current Document</button>
+    </section>
+  </main>
+
+  <footer>
+    <small>Developed for Bangladesh Primary School administration workflow.</small>
+  </footer>
+
+  <script src="documentGenerators.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
