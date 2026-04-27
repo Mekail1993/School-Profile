@@ -11,9 +11,14 @@
     <h1>Bangladesh Primary School Management Portal</h1>
     <p>Manage student records and generate academic documents.</p>
   </header>
+  <nav class="menu-bar" aria-label="Main navigation">
+    <a href="#registration">Student Registration</a>
+    <a href="#students">Students List</a>
+    <a href="#documents">Document Generator</a>
+  </nav>
 
   <main>
-    <section class="card">
+    <section id="registration" class="card">
       <h2>Student Registration</h2>
       <form id="studentForm">
         <div class="grid">
@@ -49,7 +54,7 @@
       </form>
     </section>
 
-    <section class="card">
+    <section id="students" class="card">
       <h2>Students</h2>
       <div class="toolbar">
         <label>Select Student
@@ -69,7 +74,7 @@
       </div>
     </section>
 
-    <section class="card docs">
+    <section id="documents" class="card docs">
       <h2>Document Generator</h2>
       <div class="doc-buttons">
         <button data-doc="admit">Generate Admit Card</button>
