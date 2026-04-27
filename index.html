@@ -13,6 +13,7 @@
   </header>
   <nav class="menu-bar" aria-label="Main navigation">
     <a href="#registration">Student Registration</a>
+    <a href="#marks">Marks Entry</a>
     <a href="#students">Students List</a>
     <a href="#documents">Document Generator</a>
   </nav>
@@ -40,17 +41,24 @@
           <label>Mobile <input required name="mobile" placeholder="01XXXXXXXXX" /></label>
           <label>Date of Birth <input required type="date" name="dob" /></label>
         </div>
-        <fieldset>
-          <legend>Marks (Out of 100)</legend>
-          <div class="grid marks-grid">
-            <label>Bangla <input required type="number" min="0" max="100" name="bangla" /></label>
-            <label>English <input required type="number" min="0" max="100" name="english" /></label>
-            <label>Math <input required type="number" min="0" max="100" name="math" /></label>
-            <label>Science <input required type="number" min="0" max="100" name="science" /></label>
-            <label>Religion <input required type="number" min="0" max="100" name="religion" /></label>
-          </div>
-        </fieldset>
         <button type="submit">Save Student</button>
+      </form>
+    </section>
+
+    <section id="marks" class="card">
+      <h2>Marks Entry</h2>
+      <form id="marksForm">
+        <div class="grid">
+          <label>Student
+            <select required id="marksStudentId" name="id"></select>
+          </label>
+          <label>Bangla <input required type="number" min="0" max="100" name="bangla" /></label>
+          <label>English <input required type="number" min="0" max="100" name="english" /></label>
+          <label>Math <input required type="number" min="0" max="100" name="math" /></label>
+          <label>Science <input required type="number" min="0" max="100" name="science" /></label>
+          <label>Religion <input required type="number" min="0" max="100" name="religion" /></label>
+        </div>
+        <button type="submit">Save Marks</button>
       </form>
     </section>
 
@@ -66,7 +74,7 @@
         <table>
           <thead>
             <tr>
-              <th>ID</th><th>Name</th><th>Class</th><th>Section</th><th>Roll</th><th>Total</th><th>GPA</th>
+              <th>ID</th><th>Name</th><th>Class</th><th>Section</th><th>Roll</th>
             </tr>
           </thead>
           <tbody id="studentTableBody"></tbody>
@@ -92,6 +100,7 @@
     <small>Developed for Bangladesh Primary School administration workflow.</small>
   </footer>
 
+  <script src="documentGenerators.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
