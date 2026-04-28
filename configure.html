@@ -1,5 +1,50 @@
-<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>সেটিংস</title><link rel="stylesheet" href="styles.css" /></head><body>
-<header><h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1><p>কনফিগারেশন</p></header>
-<nav class="menu-bar"><a href="index.html">ড্যাশবোর্ড</a><a href="school-profile.html">স্কুল প্রোফাইল</a><a href="teachers.html">শিক্ষক</a><a href="configure.html">সেটিংস</a><a href="students.html">শিক্ষার্থী এন্ট্রি</a><a href="marks.html">নম্বর এন্ট্রি</a><a href="class-routine.html">ক্লাস রুটিন</a><a href="documents.html">ডকুমেন্টস</a></nav>
-<main><section class="card"><h2>কনফিগারেশন</h2><form id="configForm" class="grid"><label>শিক্ষাবর্ষ <input id="cfgAcademicYear" name="academicYear" value="2026" /></label><label>পাস নম্বর <input id="cfgPassMark" type="number" name="passMark" min="1" max="100" value="33" /></label><label>ডিফল্ট GPA স্কেল <select id="cfgGpaScale" name="gpaScale"><option value="5">5.00</option><option value="4">4.00</option></select></label><label class="checkbox"><input id="cfgShowLogo" type="checkbox" name="showLogo" checked />ডকুমেন্টে স্কুল পরিচিতি ব্লক দেখান</label><button type="submit">সেটিংস সংরক্ষণ</button></form></section></main>
-<script src="documentGenerators.js"></script><script src="app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>সেটিংস</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header><h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1><p>কনফিগারেশন</p></header>
+  <nav class="menu-bar"><a href="index.html">ড্যাশবোর্ড</a><a href="school-profile.html">স্কুল প্রোফাইল</a><a href="teachers.html">শিক্ষক</a><a href="configure.html">সেটিংস</a><a href="students.html">শিক্ষার্থী এন্ট্রি</a><a href="marks.html">নম্বর এন্ট্রি</a><a href="class-routine.html">ক্লাস রুটিন</a><a href="leave-management.html">ছুটি ব্যবস্থাপনা</a><a href="official-pad.html">অফিসিয়াল প্যাড</a><a href="documents.html">ডকুমেন্টস</a></nav>
+  <main>
+    <section class="card">
+      <h2>সেটিংস (সকল কনফিগারেশন)</h2>
+      <form id="configForm" class="grid">
+        <label>শিক্ষাবর্ষ <input id="cfgAcademicYear" name="academicYear" value="2026" /></label>
+        <label>পাস নম্বর <input id="cfgPassMark" type="number" name="passMark" min="1" max="100" value="33" /></label>
+        <label>ডিফল্ট GPA স্কেল
+          <select id="cfgGpaScale" name="gpaScale"><option value="5">5.00</option><option value="4">4.00</option></select>
+        </label>
+        <label>ক্লাস তালিকা (কমা দিয়ে)
+          <input id="cfgClasses" name="classes" value="Class 1, Class 2, Class 3, Class 4, Class 5" />
+        </label>
+        <label>ডিফল্ট পরীক্ষার নাম <input id="cfgExamName" name="examName" value="বার্ষিক মূল্যায়ন" /></label>
+        <label>পরীক্ষা তালিকা (কমা দিয়ে)
+          <input id="cfgExamList" name="examList" value="১ম সাময়িক, ২য় সাময়িক, বার্ষিক মূল্যায়ন" />
+        </label>
+        <label>বিষয় তালিকা (কমা দিয়ে)
+          <input id="cfgSubjectList" name="subjectList" value="বাংলা, ইংরেজি, গণিত, বিজ্ঞান, ধর্ম" />
+        </label>
+        <label>ডিফল্ট পরীক্ষা কেন্দ্র <input id="cfgCenterName" name="centerName" value="মেইন ক্যাম্পাস হল" /></label>
+        <label>ডিফল্ট ফুটার নোট <input id="cfgFooterNote" name="footerNote" value="স্কুল ম্যানেজমেন্ট পোর্টাল দ্বারা প্রস্তুত" /></label>
+        <label>ডিফল্ট অ্যাডমিট নির্দেশনা <input id="cfgAdmitInstructions" name="admitInstructions" value="অ্যাডমিট কার্ড সঙ্গে আনতে হবে।" /></label>
+        <label>ডিফল্ট সিট প্ল্যান নির্দেশনা <input id="cfgSeatInstructions" name="seatInstructions" value="৩০ মিনিট আগে কেন্দ্রে উপস্থিত হতে হবে।" /></label>
+        <label>ডিফল্ট প্রগ্রেস মন্তব্য <input id="cfgProgressComment" name="progressComment" value="আরও ভালো করার চেষ্টা করো।" /></label>
+        <label>ডিফল্ট মার্কশিট মন্তব্য <input id="cfgMarksheetComment" name="marksheetComment" value="পরবর্তী শ্রেণিতে উত্তীর্ণ।" /></label>
+        <label class="checkbox"><input id="cfgToggleSchoolInfo" type="checkbox" name="toggleSchoolInfo" checked />ডকুমেন্টে স্কুল তথ্য দেখান</label>
+        <label class="checkbox"><input id="cfgToggleGuardian" type="checkbox" name="toggleGuardian" checked />ডকুমেন্টে অভিভাবক তথ্য দেখান</label>
+        <label class="checkbox"><input id="cfgToggleInstructions" type="checkbox" name="toggleInstructions" checked />ডকুমেন্টে নির্দেশনা দেখান</label>
+        <label class="checkbox"><input id="cfgToggleTeacherSign" type="checkbox" name="toggleTeacherSign" checked />ডকুমেন্টে শিক্ষক/স্বাক্ষর দেখান</label>
+        <label class="checkbox"><input id="cfgToggleFooter" type="checkbox" name="toggleFooter" checked />ডকুমেন্টে ফুটার দেখান</label>
+        <label class="checkbox"><input id="cfgShowLogo" type="checkbox" name="showLogo" checked />ডকুমেন্টে স্কুল পরিচিতি ব্লক দেখান</label>
+        <button type="submit">সেটিংস সংরক্ষণ</button>
+      </form>
+    </section>
+  </main>
+  <script src="documentGenerators.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-const SUBJECTS = ['bangla', 'english', 'math', 'science', 'religion'];
+const SUBJECT_KEYS = ['bangla', 'english', 'math', 'science', 'religion'];
 
 const getStudents = () => JSON.parse(localStorage.getItem('students') || '[]');
 const setStudents = (students) => localStorage.setItem('students', JSON.stringify(students));
@@ -10,6 +10,11 @@ const getConfig = () => JSON.parse(localStorage.getItem('config') || '{}');
 const setConfig = (config) => localStorage.setItem('config', JSON.stringify(config));
 const getRoutine = () => JSON.parse(localStorage.getItem('routine') || '[]');
 const setRoutine = (routine) => localStorage.setItem('routine', JSON.stringify(routine));
+const getLeaves = () => JSON.parse(localStorage.getItem('leaves') || '[]');
+const setLeaves = (leaves) => localStorage.setItem('leaves', JSON.stringify(leaves));
+
+let studentEditId = null;
+let teacherEditIndex = null;
 
 const el = (id) => document.getElementById(id);
 
@@ -25,6 +30,60 @@ function showToast(message, type = 'info') {
   }, 2200);
 }
 
+function getClassList() {
+  const config = getConfig();
+  const classes = (config.classes || 'Class 1, Class 2, Class 3, Class 4, Class 5')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return classes.length ? classes : ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'];
+}
+
+function populateClassSelects() {
+  const classSelects = Array.from(document.querySelectorAll('select[name=\"className\"]'));
+  const classes = getClassList();
+  classSelects.forEach((select) => {
+    const current = select.value;
+    select.innerHTML = classes.map((className) => `<option value=\"${className}\">${className}</option>`).join('');
+    if (classes.includes(current)) select.value = current;
+  });
+}
+
+function getExamList() {
+  const config = getConfig();
+  const exams = (config.examList || '১ম সাময়িক, ২য় সাময়িক, বার্ষিক মূল্যায়ন')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return exams.length ? exams : ['১ম সাময়িক', '২য় সাময়িক', 'বার্ষিক মূল্যায়ন'];
+}
+
+function populateExamOptions() {
+  const examSelect = el('optExamName');
+  if (!examSelect) return;
+  const exams = getExamList();
+  const current = examSelect.value;
+  examSelect.innerHTML = exams.map((exam) => `<option value=\"${exam}\">${exam}</option>`).join('');
+  examSelect.value = exams.includes(current) ? current : exams[0];
+}
+
+function getSubjectList() {
+  const config = getConfig();
+  const subjects = (config.subjectList || 'বাংলা, ইংরেজি, গণিত, বিজ্ঞান, ধর্ম')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return subjects.length ? subjects : ['বাংলা', 'ইংরেজি', 'গণিত', 'বিজ্ঞান', 'ধর্ম'];
+}
+
+function renderMarksFields() {
+  const container = el('marksFields');
+  if (!container) return;
+  const labels = getSubjectList();
+  container.className = 'grid';
+  container.innerHTML = SUBJECT_KEYS.map((key, index) => `<label>${labels[index] || key} <input required type=\"number\" min=\"0\" max=\"100\" name=\"${key}\" /></label>`).join('');
+}
+
 function setActiveMenu() {
   const current = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.menu-bar a').forEach((link) => {
@@ -34,7 +93,7 @@ function setActiveMenu() {
 }
 
 function hasMarks(student) {
-  return SUBJECTS.every((subject) => student[subject] !== undefined && student[subject] !== '');
+  return SUBJECT_KEYS.every((subject) => student[subject] !== undefined && student[subject] !== '');
 }
 
 function populateStudentSelectors() {
@@ -57,7 +116,7 @@ function refreshStudentTable() {
 
   getStudents().forEach((student) => {
     const row = document.createElement('tr');
-    row.innerHTML = `<td>${student.id}</td><td>${student.name}</td><td>${student.className || '-'}</td><td>${student.section || '-'}</td><td>${student.roll}</td><td>${hasMarks(student) ? 'সম্পন্ন' : 'বাকি'}</td>`;
+    row.innerHTML = `<td>${student.id}</td><td>${student.name}</td><td>${student.className || '-'}</td><td>${student.section || '-'}</td><td>${student.roll}</td><td>${hasMarks(student) ? 'সম্পন্ন' : 'বাকি'}</td><td><button type=\"button\" data-student-edit=\"${student.id}\">এডিট</button></td>`;
     body.appendChild(row);
   });
 }
@@ -101,7 +160,7 @@ function renderTeachers() {
     table.innerHTML = '';
     teachers.forEach((teacher, index) => {
       const row = document.createElement('tr');
-      row.innerHTML = `<td>${teacher.name}</td><td>${teacher.designation || '-'}</td><td>${teacher.mobile || '-'}</td><td><button type="button" class="danger" data-teacher-delete="${index}">মুছুন</button></td>`;
+      row.innerHTML = `<td>${teacher.name}</td><td>${teacher.designation || '-'}</td><td>${teacher.mobile || '-'}</td><td><button type=\"button\" data-teacher-edit=\"${index}\">এডিট</button> <button type=\"button\" class=\"danger\" data-teacher-delete=\"${index}\">মুছুন</button></td>`;
       table.appendChild(row);
     });
   }
@@ -128,14 +187,20 @@ function getDocOptions() {
     headTeacher: profile.headTeacher || '-',
     academicYear: config.academicYear || '2026',
     passMark: Number(config.passMark || 33),
-    examName: el('optExamName')?.value || 'বার্ষিক মূল্যায়ন',
-    centerName: el('optCenterName')?.value || 'মেইন ক্যাম্পাস হল',
-    footerNote: el('optFooterNote')?.value || '',
-    admitInstructions: el('optAdmitInstructions')?.value || '',
-    seatInstructions: el('optSeatInstructions')?.value || '',
-    progressComment: el('optProgressComment')?.value || '',
-    marksheetComment: el('optMarksheetComment')?.value || '',
-    authorizedTeacher: el('optAuthorizedTeacher')?.value || '-'
+    examName: el('optExamName')?.value || config.examName || getExamList()[0],
+    centerName: el('optCenterName')?.value || config.centerName || 'মেইন ক্যাম্পাস হল',
+    footerNote: el('optFooterNote')?.value || config.footerNote || '',
+    admitInstructions: el('optAdmitInstructions')?.value || config.admitInstructions || '',
+    seatInstructions: el('optSeatInstructions')?.value || config.seatInstructions || '',
+    progressComment: el('optProgressComment')?.value || config.progressComment || '',
+    marksheetComment: el('optMarksheetComment')?.value || config.marksheetComment || '',
+    authorizedTeacher: el('optAuthorizedTeacher')?.value || '-',
+    showSchoolInfo: el('toggleSchoolInfo') ? el('toggleSchoolInfo').checked : config.toggleSchoolInfo !== false,
+    showGuardian: el('toggleGuardian') ? el('toggleGuardian').checked : config.toggleGuardian !== false,
+    showInstructions: el('toggleInstructions') ? el('toggleInstructions').checked : config.toggleInstructions !== false,
+    showTeacherSign: el('toggleTeacherSign') ? el('toggleTeacherSign').checked : config.toggleTeacherSign !== false,
+    showFooter: el('toggleFooter') ? el('toggleFooter').checked : config.toggleFooter !== false,
+    subjectList: getSubjectList()
   };
 }
 
@@ -156,8 +221,8 @@ function htmlToPdf(filename, html) {
 
 function generateDocumentHtml(type, student) {
   const options = getDocOptions();
-  const markedStudents = getStudents().filter(hasMarks);
-  if (type === 'tabulation') return DocumentGenerators.generateTabulationSheet(markedStudents, options);
+  const allStudents = getStudents();
+  if (type === 'tabulation') return DocumentGenerators.generateTabulationSheet(allStudents, options);
   const generators = {
     admit: DocumentGenerators.generateAdmitCard,
     seat: DocumentGenerators.generateSeatPlan,
@@ -178,18 +243,60 @@ function renderRoutineTable() {
   });
 }
 
+function renderLeaveTable() {
+  const body = el('leaveTableBody');
+  const teacherSelect = el('leaveTeacher');
+  if (teacherSelect) {
+    teacherSelect.innerHTML = '<option value=\"\">শিক্ষক নির্বাচন করুন</option>';
+    getTeachers().forEach((teacher) => {
+      const option = document.createElement('option');
+      option.value = teacher.name;
+      option.textContent = teacher.name;
+      teacherSelect.appendChild(option);
+    });
+  }
+  if (!body) return;
+  body.innerHTML = '';
+  getLeaves().forEach((item, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${item.teacher}</td><td>${item.type}</td><td>${item.fromDate} - ${item.toDate}</td><td>${item.reason}</td><td>${item.status}</td><td><button type=\"button\" class=\"danger\" data-leave-delete=\"${index}\">মুছুন</button></td>`;
+    body.appendChild(row);
+  });
+}
+
+function renderOfficialPad() {
+  const output = el('officialPadOutput');
+  if (!output) return;
+  const profile = getSchoolProfile();
+  const subject = el('padSubject')?.value || '';
+  const recipient = el('padRecipient')?.value || '';
+  const date = el('padDate')?.value || '';
+  const reference = el('padReference')?.value || '';
+  const body = el('padBody')?.value || '';
+  output.innerHTML = `<div class=\"doc-sheet\"><div class=\"doc-head\"><h3>${profile.schoolName || 'বাংলাদেশ প্রাথমিক বিদ্যালয়'}</h3><p>${profile.schoolAddress || ''}</p><p>স্মারক নং: ${reference} | তারিখ: ${date}</p></div><div class=\"doc-body\"><p><strong>প্রাপক:</strong> ${recipient}</p><p><strong>বিষয়:</strong> ${subject}</p><p style=\"white-space:pre-line\">${body}</p></div></div>`;
+}
+
 function initForms() {
   el('studentForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const student = Object.fromEntries(new FormData(e.target).entries());
     if (!student.id || !student.name || !student.roll) return showToast('ইউজার আইডি, নাম এবং রোল নম্বর বাধ্যতামূলক।', 'error');
-    if (getStudents().some((s) => s.id === student.id)) return showToast('এই ইউজার আইডি ইতোমধ্যে রয়েছে।', 'error');
-    setStudents([...getStudents(), student]);
+    const students = getStudents();
+    if (!studentEditId && students.some((s) => s.id === student.id)) return showToast('এই ইউজার আইডি ইতোমধ্যে রয়েছে।', 'error');
+    if (studentEditId) {
+      const index = students.findIndex((s) => s.id === studentEditId);
+      students[index] = { ...students[index], ...student, id: studentEditId };
+      setStudents(students);
+      studentEditId = null;
+      if (el('studentSubmitBtn')) el('studentSubmitBtn').textContent = 'শিক্ষার্থী সংরক্ষণ';
+    } else {
+      setStudents([...students, student]);
+    }
     e.target.reset();
     populateStudentSelectors();
     refreshStudentTable();
     renderDashboard();
-    showToast('শিক্ষার্থী সফলভাবে সংরক্ষণ করা হয়েছে।', 'success');
+    showToast('শিক্ষার্থী তথ্য সংরক্ষণ করা হয়েছে।', 'success');
   });
 
   el('marksForm')?.addEventListener('submit', (e) => {
@@ -198,12 +305,23 @@ function initForms() {
     const students = getStudents();
     const student = students.find((s) => s.id === id);
     if (!student) return showToast('সঠিক শিক্ষার্থী নির্বাচন করুন।', 'error');
-    SUBJECTS.forEach((subject) => { student[subject] = marks[subject]; });
+    SUBJECT_KEYS.forEach((subject) => { student[subject] = marks[subject]; });
     setStudents(students);
     e.target.reset();
     refreshStudentTable();
     renderDashboard();
     showToast('নম্বর সফলভাবে সংরক্ষণ করা হয়েছে।', 'success');
+  });
+
+  el('loadMarksBtn')?.addEventListener('click', () => {
+    const id = el('marksStudentId')?.value;
+    const student = getStudents().find((item) => item.id === id);
+    if (!student) return showToast('প্রথমে শিক্ষার্থী নির্বাচন করুন।', 'error');
+    const form = el('marksForm');
+    SUBJECT_KEYS.forEach((subject) => {
+      if (form?.elements[subject]) form.elements[subject].value = student[subject] || '';
+    });
+    showToast('বিদ্যমান নম্বর লোড হয়েছে।', 'success');
   });
 
   el('deleteBtn')?.addEventListener('click', () => {
@@ -227,13 +345,34 @@ function initForms() {
     e.preventDefault();
     const teacher = Object.fromEntries(new FormData(e.target).entries());
     if (!teacher.name) return showToast('শিক্ষকের নাম বাধ্যতামূলক।', 'error');
-    setTeachers([...getTeachers(), teacher]);
+    const teachers = getTeachers();
+    if (teacherEditIndex !== null) {
+      teachers[teacherEditIndex] = teacher;
+      setTeachers(teachers);
+      teacherEditIndex = null;
+      if (el('teacherSubmitBtn')) el('teacherSubmitBtn').textContent = 'শিক্ষক যোগ করুন';
+    } else {
+      setTeachers([...teachers, teacher]);
+    }
     e.target.reset();
     renderTeachers();
     showToast('শিক্ষক যোগ করা হয়েছে।', 'success');
   });
 
   el('teacherTableBody')?.addEventListener('click', (event) => {
+    const editButton = event.target.closest('[data-teacher-edit]');
+    if (editButton) {
+      const index = Number(editButton.dataset.teacherEdit);
+      const teacher = getTeachers()[index];
+      if (!teacher) return;
+      teacherEditIndex = index;
+      const form = el('teacherForm');
+      form.elements.name.value = teacher.name || '';
+      form.elements.designation.value = teacher.designation || '';
+      form.elements.mobile.value = teacher.mobile || '';
+      if (el('teacherSubmitBtn')) el('teacherSubmitBtn').textContent = 'শিক্ষক আপডেট করুন';
+      return;
+    }
     const button = event.target.closest('[data-teacher-delete]');
     if (!button) return;
     const index = Number(button.dataset.teacherDelete);
@@ -243,11 +382,37 @@ function initForms() {
     showToast('শিক্ষক মুছে ফেলা হয়েছে।', 'success');
   });
 
+  el('studentTableBody')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-student-edit]');
+    if (!button) return;
+    const id = button.dataset.studentEdit;
+    const student = getStudents().find((item) => item.id === id);
+    if (!student) return;
+    studentEditId = id;
+    const form = el('studentForm');
+    Object.entries(student).forEach(([key, value]) => {
+      if (form.elements[key]) form.elements[key].value = value || '';
+    });
+    if (el('studentSubmitBtn')) el('studentSubmitBtn').textContent = 'শিক্ষার্থী আপডেট করুন';
+    showToast('শিক্ষার্থী তথ্য এডিট মোডে লোড হয়েছে।', 'info');
+  });
+
   el('configForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const config = Object.fromEntries(new FormData(e.target).entries());
     config.showLogo = el('cfgShowLogo')?.checked;
+    config.toggleSchoolInfo = el('cfgToggleSchoolInfo')?.checked;
+    config.toggleGuardian = el('cfgToggleGuardian')?.checked;
+    config.toggleInstructions = el('cfgToggleInstructions')?.checked;
+    config.toggleTeacherSign = el('cfgToggleTeacherSign')?.checked;
+    config.toggleFooter = el('cfgToggleFooter')?.checked;
+    config.classes = (config.classes || '').split(',').map((item) => item.trim()).filter(Boolean).join(', ');
+    config.examList = (config.examList || '').split(',').map((item) => item.trim()).filter(Boolean).join(', ');
+    config.subjectList = (config.subjectList || '').split(',').map((item) => item.trim()).filter(Boolean).join(', ');
     setConfig(config);
+    populateClassSelects();
+    populateExamOptions();
+    renderMarksFields();
     renderDashboard();
     showToast('সেটিংস সংরক্ষিত হয়েছে।', 'success');
   });
@@ -269,6 +434,25 @@ function initForms() {
     setRoutine(getRoutine().filter((_, i) => i !== index));
     renderRoutineTable();
     showToast('রুটিন এন্ট্রি মুছে ফেলা হয়েছে।', 'success');
+  });
+
+  el('leaveForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const item = Object.fromEntries(new FormData(e.target).entries());
+    if (!item.teacher) return showToast('শিক্ষক নির্বাচন করুন।', 'error');
+    setLeaves([...getLeaves(), item]);
+    e.target.reset();
+    renderLeaveTable();
+    showToast('ছুটি আবেদন সংরক্ষিত হয়েছে।', 'success');
+  });
+
+  el('leaveTableBody')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-leave-delete]');
+    if (!button) return;
+    const index = Number(button.dataset.leaveDelete);
+    if (!confirm('এই ছুটি আবেদন মুছে ফেলতে চান?')) return;
+    setLeaves(getLeaves().filter((_, i) => i !== index));
+    renderLeaveTable();
   });
 }
 
@@ -307,7 +491,9 @@ function initDocuments() {
   const handler = (type, mode) => {
     const student = type === 'tabulation' ? null : getSelectedStudent();
     if (type !== 'tabulation' && !student) return showToast('প্রথমে শিক্ষার্থী নির্বাচন করুন।', 'error');
-    if ((type === 'progress' || type === 'marksheet') && !hasMarks(student)) return showToast('এই শিক্ষার্থীর নম্বর এন্ট্রি আগে সম্পন্ন করুন।', 'error');
+    if ((type === 'progress' || type === 'marksheet') && student && !hasMarks(student)) {
+      showToast('নম্বর এন্ট্রি না থাকায় নম্বর ০ ধরা হবে।', 'info');
+    }
     const html = generateDocumentHtml(type, student);
     if (mode === 'preview') el('documentOutput').innerHTML = html;
     else htmlToPdf(`${type}-${student ? student.id : 'all'}.pdf`, html);
@@ -335,6 +521,15 @@ function initDocuments() {
   });
 }
 
+function initOfficialPad() {
+  if (!el('officialPadOutput')) return;
+  el('previewPadBtn')?.addEventListener('click', renderOfficialPad);
+  el('printPadBtn')?.addEventListener('click', () => {
+    renderOfficialPad();
+    window.print();
+  });
+}
+
 function loadSettings() {
   const profile = getSchoolProfile();
   if (el('schoolName')) el('schoolName').value = profile.schoolName || 'বাংলাদেশ প্রাথমিক বিদ্যালয়';
@@ -348,16 +543,51 @@ function loadSettings() {
   if (el('cfgAcademicYear')) el('cfgAcademicYear').value = config.academicYear || '2026';
   if (el('cfgPassMark')) el('cfgPassMark').value = config.passMark || 33;
   if (el('cfgGpaScale')) el('cfgGpaScale').value = config.gpaScale || '5';
+  if (el('cfgClasses')) el('cfgClasses').value = config.classes || 'Class 1, Class 2, Class 3, Class 4, Class 5';
+  if (el('cfgExamName')) el('cfgExamName').value = config.examName || 'বার্ষিক মূল্যায়ন';
+  if (el('cfgExamList')) el('cfgExamList').value = config.examList || '১ম সাময়িক, ২য় সাময়িক, বার্ষিক মূল্যায়ন';
+  if (el('cfgSubjectList')) el('cfgSubjectList').value = config.subjectList || 'বাংলা, ইংরেজি, গণিত, বিজ্ঞান, ধর্ম';
+  if (el('cfgCenterName')) el('cfgCenterName').value = config.centerName || 'মেইন ক্যাম্পাস হল';
+  if (el('cfgFooterNote')) el('cfgFooterNote').value = config.footerNote || 'স্কুল ম্যানেজমেন্ট পোর্টাল দ্বারা প্রস্তুত';
+  if (el('cfgAdmitInstructions')) el('cfgAdmitInstructions').value = config.admitInstructions || 'অ্যাডমিট কার্ড সঙ্গে আনতে হবে।';
+  if (el('cfgSeatInstructions')) el('cfgSeatInstructions').value = config.seatInstructions || '৩০ মিনিট আগে কেন্দ্রে উপস্থিত হতে হবে।';
+  if (el('cfgProgressComment')) el('cfgProgressComment').value = config.progressComment || 'আরও ভালো করার চেষ্টা করো।';
+  if (el('cfgMarksheetComment')) el('cfgMarksheetComment').value = config.marksheetComment || 'পরবর্তী শ্রেণিতে উত্তীর্ণ।';
+  if (el('cfgToggleSchoolInfo')) el('cfgToggleSchoolInfo').checked = config.toggleSchoolInfo !== false;
+  if (el('cfgToggleGuardian')) el('cfgToggleGuardian').checked = config.toggleGuardian !== false;
+  if (el('cfgToggleInstructions')) el('cfgToggleInstructions').checked = config.toggleInstructions !== false;
+  if (el('cfgToggleTeacherSign')) el('cfgToggleTeacherSign').checked = config.toggleTeacherSign !== false;
+  if (el('cfgToggleFooter')) el('cfgToggleFooter').checked = config.toggleFooter !== false;
   if (el('cfgShowLogo')) el('cfgShowLogo').checked = config.showLogo !== false;
+
+  if (el('optExamName')) {
+    populateExamOptions();
+    el('optExamName').value = config.examName || getExamList()[0];
+  }
+  if (el('optCenterName')) el('optCenterName').value = config.centerName || 'মেইন ক্যাম্পাস হল';
+  if (el('optFooterNote')) el('optFooterNote').value = config.footerNote || 'স্কুল ম্যানেজমেন্ট পোর্টাল দ্বারা প্রস্তুত';
+  if (el('optAdmitInstructions')) el('optAdmitInstructions').value = config.admitInstructions || 'অ্যাডমিট কার্ড সঙ্গে আনতে হবে।';
+  if (el('optSeatInstructions')) el('optSeatInstructions').value = config.seatInstructions || '৩০ মিনিট আগে কেন্দ্রে উপস্থিত হতে হবে।';
+  if (el('optProgressComment')) el('optProgressComment').value = config.progressComment || 'আরও ভালো করার চেষ্টা করো।';
+  if (el('optMarksheetComment')) el('optMarksheetComment').value = config.marksheetComment || 'পরবর্তী শ্রেণিতে উত্তীর্ণ।';
+  if (el('toggleSchoolInfo')) el('toggleSchoolInfo').checked = config.toggleSchoolInfo !== false;
+  if (el('toggleGuardian')) el('toggleGuardian').checked = config.toggleGuardian !== false;
+  if (el('toggleInstructions')) el('toggleInstructions').checked = config.toggleInstructions !== false;
+  if (el('toggleTeacherSign')) el('toggleTeacherSign').checked = config.toggleTeacherSign !== false;
+  if (el('toggleFooter')) el('toggleFooter').checked = config.toggleFooter !== false;
 }
 
 loadSettings();
+populateClassSelects();
+renderMarksFields();
 setActiveMenu();
 renderTeachers();
+renderLeaveTable();
 populateStudentSelectors();
 refreshStudentTable();
 renderDashboard();
 initForms();
 initDashboardTransfer();
 initDocuments();
+initOfficialPad();
 renderRoutineTable();

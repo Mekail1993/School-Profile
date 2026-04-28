@@ -1,5 +1,52 @@
-<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>ডকুমেন্টস</title><link rel="stylesheet" href="styles.css" /></head><body>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ডকুমেন্টস</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
 <header><h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1><p>ডকুমেন্ট সেন্টার</p></header>
-<nav class="menu-bar"><a href="index.html">ড্যাশবোর্ড</a><a href="school-profile.html">স্কুল প্রোফাইল</a><a href="teachers.html">শিক্ষক</a><a href="configure.html">সেটিংস</a><a href="students.html">শিক্ষার্থী এন্ট্রি</a><a href="marks.html">নম্বর এন্ট্রি</a><a href="class-routine.html">ক্লাস রুটিন</a><a href="documents.html">ডকুমেন্টস</a></nav>
-<main><section class="card docs"><h2>ডকুমেন্ট সেন্টার</h2><div class="grid"><label>স্কুলের নাম <input id="optSchoolName" value="বাংলাদেশ প্রাথমিক বিদ্যালয়" /></label><label>পরীক্ষার নাম <input id="optExamName" value="বার্ষিক মূল্যায়ন ২০২৬" /></label><label>পরীক্ষা কেন্দ্র <input id="optCenterName" value="মেইন ক্যাম্পাস হল" /></label><label>ফুটার নোট <input id="optFooterNote" value="স্কুল ম্যানেজমেন্ট পোর্টাল দ্বারা প্রস্তুত" /></label></div><div class="grid"><label>অ্যাডমিট নির্দেশনা <input id="optAdmitInstructions" value="অ্যাডমিট কার্ড সঙ্গে আনতে হবে।" /></label><label>সিট প্ল্যান নির্দেশনা <input id="optSeatInstructions" value="৩০ মিনিট আগে কেন্দ্রে উপস্থিত হতে হবে।" /></label><label>প্রগ্রেস রিপোর্ট মন্তব্য <input id="optProgressComment" value="আরও ভালো করার চেষ্টা করো।" /></label><label>মার্কশিট মন্তব্য <input id="optMarksheetComment" value="পরবর্তী শ্রেণিতে উত্তীর্ণ।" /></label><label>অনুমোদিত শিক্ষক<select id="optAuthorizedTeacher"></select></label><label>শিক্ষার্থী নির্বাচন<select id="studentSelector"></select></label></div><div class="doc-buttons"><button data-doc="admit">অ্যাডমিট কার্ড প্রিভিউ</button><button data-doc="seat">সিট প্ল্যান প্রিভিউ</button><button data-doc="progress">প্রগ্রেস রিপোর্ট প্রিভিউ</button><button data-doc="tabulation">ট্যাবুলেশন শিট প্রিভিউ</button><button data-doc="marksheet">মার্কশিট প্রিভিউ</button></div><div class="doc-buttons"><button data-download="admit">অ্যাডমিট PDF ডাউনলোড</button><button data-download="seat">সিট প্ল্যান PDF ডাউনলোড</button><button data-download="progress">প্রগ্রেস PDF ডাউনলোড</button><button data-download="tabulation">ট্যাবুলেশন PDF ডাউনলোড</button><button data-download="marksheet">মার্কশিট PDF ডাউনলোড</button><button id="batchDownloadBtn">সব PDF একসাথে ডাউনলোড</button></div><article id="documentOutput" class="output"></article><button id="printBtn">বর্তমান ডকুমেন্ট প্রিন্ট</button></section></main>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script><script src="documentGenerators.js"></script><script src="app.js"></script></body></html>
+<nav class="menu-bar"><a href="index.html">ড্যাশবোর্ড</a><a href="school-profile.html">স্কুল প্রোফাইল</a><a href="teachers.html">শিক্ষক</a><a href="configure.html">সেটিংস</a><a href="students.html">শিক্ষার্থী এন্ট্রি</a><a href="marks.html">নম্বর এন্ট্রি</a><a href="class-routine.html">ক্লাস রুটিন</a><a href="leave-management.html">ছুটি ব্যবস্থাপনা</a><a href="official-pad.html">অফিসিয়াল প্যাড</a><a href="documents.html">ডকুমেন্টস</a></nav>
+<main>
+  <section class="card docs">
+    <h2>ডকুমেন্ট সেন্টার</h2>
+    <div class="grid">
+      <label>স্কুলের নাম <input id="optSchoolName" value="বাংলাদেশ প্রাথমিক বিদ্যালয়" /></label>
+      <label>পরীক্ষার নাম <select id="optExamName"></select></label>
+      <label>পরীক্ষা কেন্দ্র <input id="optCenterName" value="মেইন ক্যাম্পাস হল" /></label>
+      <label>ফুটার নোট <input id="optFooterNote" value="স্কুল ম্যানেজমেন্ট পোর্টাল দ্বারা প্রস্তুত" /></label>
+    </div>
+    <div class="grid">
+      <label>অ্যাডমিট নির্দেশনা <input id="optAdmitInstructions" value="অ্যাডমিট কার্ড সঙ্গে আনতে হবে।" /></label>
+      <label>সিট প্ল্যান নির্দেশনা <input id="optSeatInstructions" value="৩০ মিনিট আগে কেন্দ্রে উপস্থিত হতে হবে।" /></label>
+      <label>প্রগ্রেস রিপোর্ট মন্তব্য <input id="optProgressComment" value="আরও ভালো করার চেষ্টা করো।" /></label>
+      <label>মার্কশিট মন্তব্য <input id="optMarksheetComment" value="পরবর্তী শ্রেণিতে উত্তীর্ণ।" /></label>
+      <label>অনুমোদিত শিক্ষক<select id="optAuthorizedTeacher"></select></label>
+      <label>শিক্ষার্থী নির্বাচন<select id="studentSelector"></select></label>
+    </div>
+
+    <h3>ডকুমেন্ট টগলস</h3>
+    <div class="grid">
+      <label class="checkbox"><input type="checkbox" id="toggleSchoolInfo" checked />স্কুল তথ্য দেখান</label>
+      <label class="checkbox"><input type="checkbox" id="toggleGuardian" checked />অভিভাবক তথ্য দেখান</label>
+      <label class="checkbox"><input type="checkbox" id="toggleInstructions" checked />নির্দেশনা দেখান</label>
+      <label class="checkbox"><input type="checkbox" id="toggleTeacherSign" checked />শিক্ষক/স্বাক্ষর অংশ দেখান</label>
+      <label class="checkbox"><input type="checkbox" id="toggleFooter" checked />ফুটার দেখান</label>
+    </div>
+
+    <div class="doc-buttons">
+      <button data-doc="admit">অ্যাডমিট কার্ড প্রিভিউ</button><button data-doc="seat">সিট প্ল্যান প্রিভিউ</button><button data-doc="progress">প্রগ্রেস রিপোর্ট প্রিভিউ</button><button data-doc="tabulation">ট্যাবুলেশন শিট প্রিভিউ</button><button data-doc="marksheet">মার্কশিট প্রিভিউ</button>
+    </div>
+    <div class="doc-buttons">
+      <button data-download="admit">অ্যাডমিট PDF ডাউনলোড</button><button data-download="seat">সিট প্ল্যান PDF ডাউনলোড</button><button data-download="progress">প্রগ্রেস PDF ডাউনলোড</button><button data-download="tabulation">ট্যাবুলেশন PDF ডাউনলোড</button><button data-download="marksheet">মার্কশিট PDF ডাউনলোড</button><button id="batchDownloadBtn">সব PDF একসাথে ডাউনলোড</button>
+    </div>
+    <article id="documentOutput" class="output"></article><button id="printBtn">বর্তমান ডকুমেন্ট প্রিন্ট</button>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="documentGenerators.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
