@@ -7,21 +7,42 @@ const output = document.getElementById('documentOutput');
 const statsGrid = document.getElementById('statsGrid');
 const classDistribution = document.getElementById('classDistribution');
 const importInput = document.getElementById('importInput');
+const schoolProfileForm = document.getElementById('schoolProfileForm');
+const teacherForm = document.getElementById('teacherForm');
+const configForm = document.getElementById('configForm');
+const teacherTableBody = document.getElementById('teacherTableBody');
+const authorizedTeacherSelect = document.getElementById('optAuthorizedTeacher');
 const SUBJECTS = ['bangla', 'english', 'math', 'science', 'religion'];
 
 const getStudents = () => JSON.parse(localStorage.getItem('students') || '[]');
 const setStudents = (students) => localStorage.setItem('students', JSON.stringify(students));
+const getSchoolProfile = () => JSON.parse(localStorage.getItem('schoolProfile') || '{}');
+const setSchoolProfile = (profile) => localStorage.setItem('schoolProfile', JSON.stringify(profile));
+const getTeachers = () => JSON.parse(localStorage.getItem('teachers') || '[]');
+const setTeachers = (teachers) => localStorage.setItem('teachers', JSON.stringify(teachers));
+const getConfig = () => JSON.parse(localStorage.getItem('config') || '{}');
+const setConfig = (config) => localStorage.setItem('config', JSON.stringify(config));
 
 function getDocOptions() {
+  const schoolProfile = getSchoolProfile();
+  const config = getConfig();
   return {
-    schoolName: document.getElementById('optSchoolName').value.trim() || 'Bangladesh Primary School',
+    schoolName: document.getElementById('optSchoolName').value.trim() || schoolProfile.schoolName || 'Bangladesh Primary School',
+    schoolCode: schoolProfile.schoolCode || '-',
+    schoolAddress: schoolProfile.schoolAddress || '-',
+    schoolPhone: schoolProfile.schoolPhone || '-',
+    headTeacher: schoolProfile.headTeacher || '-',
+    academicYear: config.academicYear || '2026',
+    passMark: Number(config.passMark || 33),
+    showLogo: Boolean(config.showLogo),
     examName: document.getElementById('optExamName').value.trim() || 'Annual Assessment',
     centerName: document.getElementById('optCenterName').value.trim() || 'Main Campus Hall',
     footerNote: document.getElementById('optFooterNote').value.trim() || '',
     admitInstructions: document.getElementById('optAdmitInstructions').value.trim() || '',
     seatInstructions: document.getElementById('optSeatInstructions').value.trim() || '',
     progressComment: document.getElementById('optProgressComment').value.trim() || '',
-    marksheetComment: document.getElementById('optMarksheetComment').value.trim() || ''
+    marksheetComment: document.getElementById('optMarksheetComment').value.trim() || '',
+    authorizedTeacher: authorizedTeacherSelect.value || '-'
   };
 }
 
@@ -29,11 +50,51 @@ function hasMarks(student) {
   return SUBJECTS.every((subject) => student[subject] !== undefined && student[subject] !== '');
 }
 
+function renderTeachers() {
+  const teachers = getTeachers();
+  teacherTableBody.innerHTML = '';
+  authorizedTeacherSelect.innerHTML = '<option value="">Select Teacher</option>';
+
+  teachers.forEach((teacher, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${teacher.name}</td>
+      <td>${teacher.designation || '-'}</td>
+      <td>${teacher.mobile || '-'}</td>
+      <td><button type="button" class="danger" data-teacher-delete="${index}">Delete</button></td>
+    `;
+    teacherTableBody.appendChild(row);
+
+    const option = document.createElement('option');
+    option.value = teacher.name;
+    option.textContent = `${teacher.name} (${teacher.designation || 'Teacher'})`;
+    authorizedTeacherSelect.appendChild(option);
+  });
+}
+
+function loadSettingsIntoForms() {
+  const schoolProfile = getSchoolProfile();
+  document.getElementById('schoolName').value = schoolProfile.schoolName || 'Bangladesh Primary School';
+  document.getElementById('schoolCode').value = schoolProfile.schoolCode || '';
+  document.getElementById('schoolAddress').value = schoolProfile.schoolAddress || '';
+  document.getElementById('schoolPhone').value = schoolProfile.schoolPhone || '';
+  document.getElementById('headTeacher').value = schoolProfile.headTeacher || '';
+
+  document.getElementById('optSchoolName').value = schoolProfile.schoolName || 'Bangladesh Primary School';
+
+  const config = getConfig();
+  document.getElementById('cfgAcademicYear').value = config.academicYear || '2026';
+  document.getElementById('cfgPassMark').value = config.passMark || 33;
+  document.getElementById('cfgGpaScale').value = config.gpaScale || '5';
+  document.getElementById('cfgShowLogo').checked = config.showLogo !== false;
+}
+
 function renderDashboard(students) {
   const markedStudents = students.filter(hasMarks);
-  const passed = markedStudents.filter((student) => DocumentGenerators.calculateResult(student).status === 'Pass');
+  const passMark = Number(getConfig().passMark || 33);
+  const passed = markedStudents.filter((student) => DocumentGenerators.calculateResult(student, passMark).status === 'Pass');
   const averageGpa = markedStudents.length
-    ? (markedStudents.reduce((sum, student) => sum + Number(DocumentGenerators.calculateResult(student).gpa), 0) / markedStudents.length).toFixed(2)
+    ? (markedStudents.reduce((sum, student) => sum + Number(DocumentGenerators.calculateResult(student, passMark).gpa), 0) / markedStudents.length).toFixed(2)
     : '0.00';
 
   const cards = [
@@ -131,6 +192,44 @@ marksForm.addEventListener('submit', (e) => {
   setStudents(students);
   marksForm.reset();
   refreshUI();
+});
+
+schoolProfileForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const profile = Object.fromEntries(new FormData(schoolProfileForm).entries());
+  setSchoolProfile(profile);
+  document.getElementById('optSchoolName').value = profile.schoolName || 'Bangladesh Primary School';
+  alert('School profile updated.');
+});
+
+teacherForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const teacher = Object.fromEntries(new FormData(teacherForm).entries());
+  if (!teacher.name) {
+    alert('Teacher name is required.');
+    return;
+  }
+  setTeachers([...getTeachers(), teacher]);
+  teacherForm.reset();
+  renderTeachers();
+});
+
+teacherTableBody.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-teacher-delete]');
+  if (!button) return;
+  const index = Number(button.dataset.teacherDelete);
+  const teachers = getTeachers().filter((_, idx) => idx !== index);
+  setTeachers(teachers);
+  renderTeachers();
+});
+
+configForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const config = Object.fromEntries(new FormData(configForm).entries());
+  config.showLogo = document.getElementById('cfgShowLogo').checked;
+  setConfig(config);
+  refreshUI();
+  alert('Configuration saved.');
 });
 
 document.getElementById('deleteBtn').addEventListener('click', () => {
@@ -271,4 +370,6 @@ importInput.addEventListener('change', async (event) => {
   }
 });
 
+loadSettingsIntoForms();
+renderTeachers();
 refreshUI();
