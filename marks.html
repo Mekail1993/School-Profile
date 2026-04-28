@@ -16,9 +16,9 @@
 
 <nav class="menu-bar">
 <a href="index.html">ড্যাশবোর্ড</a>
-<a href="school-profile.html">স্কুল প্রোফাইল</a>
-<a href="students.html">শিক্ষার্থী এন্ট্রি</a>
+<a href="students.html">শিক্ষার্থী</a>
 <a href="marks.html">নম্বর এন্ট্রি</a>
+<a href="documents.html">ডকুমেন্টস</a>
 </nav>
 
 <main>
@@ -26,6 +26,8 @@
 <section class="card">
 <h2>শ্রেণি নির্বাচন</h2>
 
+<label>
+শ্রেণি:
 <select id="classSelect">
 <option value="">-- নির্বাচন করুন --</option>
 <option value="Class 1">Class 1</option>
@@ -34,12 +36,16 @@
 <option value="Class 4">Class 4</option>
 <option value="Class 5">Class 5</option>
 </select>
+</label>
 
-<select id="examName">
+<label>
+পরীক্ষা:
+<select id="examSelect">
 <option value="প্রথম সাময়িক">প্রথম সাময়িক</option>
 <option value="অর্ধবার্ষিক">অর্ধবার্ষিক</option>
 <option value="বার্ষিক">বার্ষিক</option>
 </select>
+</label>
 
 </section>
 
@@ -47,11 +53,9 @@
 <h2 id="title">নম্বর এন্ট্রি</h2>
 
 <form id="marksForm">
-
 <div id="studentArea"></div>
 
 <button type="submit">সংরক্ষণ করুন</button>
-
 </form>
 
 </section>
@@ -59,123 +63,128 @@
 </main>
 
 <script>
+// =========================
+// CONFIG
+// =========================
+const SUBJECTS = ["bangla","english","math","science","bgs","religion"];
 
-// =====================
-// LOAD STUDENTS SAFE
-// =====================
+const SUBJECT_LABELS = {
+  bangla: "বাংলা",
+  english: "ইংরেজি",
+  math: "গণিত",
+  science: "বিজ্ঞান",
+  bgs: "বাওবি",
+  religion: "ধর্ম"
+};
+
+// =========================
+// GET STUDENTS
+// =========================
 function getStudents(){
-return JSON.parse(localStorage.getItem("students")) || [];
+  return JSON.parse(localStorage.getItem("students")) || [];
 }
 
-// =====================
+// =========================
 // DOM
-// =====================
+// =========================
 const classSelect = document.getElementById("classSelect");
-const examName = document.getElementById("examName");
+const examSelect = document.getElementById("examSelect");
 const marksSection = document.getElementById("marksSection");
 const studentArea = document.getElementById("studentArea");
 const title = document.getElementById("title");
 
-// =====================
-// CLASS CHANGE
-// =====================
-classSelect.addEventListener("change", function(){
+// =========================
+// LOAD STUDENTS
+// =========================
+classSelect.addEventListener("change", () => {
 
-const cls = this.value;
-studentArea.innerHTML = "";
+  const cls = classSelect.value;
+  studentArea.innerHTML = "";
 
-if(!cls){
-marksSection.style.display = "none";
-return;
-}
+  if(!cls){
+    marksSection.style.display = "none";
+    return;
+  }
 
-const students = getStudents().filter(s => s.className === cls);
+  const students = getStudents().filter(s => s.className === cls);
 
-title.innerText = cls + " - নম্বর এন্ট্রি";
+  title.innerText = cls + " - নম্বর এন্ট্রি";
 
-if(students.length === 0){
-studentArea.innerHTML = "<p>কোনো শিক্ষার্থী নেই</p>";
-marksSection.style.display = "block";
-return;
-}
+  if(students.length === 0){
+    studentArea.innerHTML = "<p>কোনো শিক্ষার্থী নেই</p>";
+    marksSection.style.display = "block";
+    return;
+  }
 
-// =====================
-// FORM GENERATE
-// =====================
-students.forEach(s => {
+  students.forEach(s => {
 
-studentArea.innerHTML += `
-<div class="card">
-<h3>${s.roll || "-"} - ${s.name}</h3>
+    studentArea.innerHTML += `
+      <div class="card">
+        <h3>${s.roll} - ${s.name}</h3>
 
-<label>বাংলা <input type="number" name="bangla_${s.id}" min="0" max="100"></label>
-<label>ইংরেজি <input type="number" name="english_${s.id}" min="0" max="100"></label>
-<label>গণিত <input type="number" name="math_${s.id}" min="0" max="100"></label>
-<label>বিজ্ঞান <input type="number" name="science_${s.id}" min="0" max="100"></label>
-<label>বাওবি <input type="number" name="bgs_${s.id}" min="0" max="100"></label>
-<label>ধর্ম <input type="number" name="religion_${s.id}" min="0" max="100"></label>
+        ${SUBJECTS.map(sub => `
+          <label>
+            ${SUBJECT_LABELS[sub]}
+            <input type="number" min="0" max="100" name="${sub}_${s.id}">
+          </label>
+        `).join('')}
 
-</div>
-`;
+      </div>
+    `;
 
+  });
+
+  marksSection.style.display = "block";
 });
 
-marksSection.style.display = "block";
+// =========================
+// SAVE MARKS (IMPORTANT FIXED)
+// =========================
+document.getElementById("marksForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const cls = classSelect.value;
+  const exam = examSelect.value;
+
+  if(!cls){
+    alert("শ্রেণি নির্বাচন করুন");
+    return;
+  }
+
+  const students = getStudents().filter(s => s.className === cls);
+
+  let marks = JSON.parse(localStorage.getItem("marks")) || [];
+
+  // remove old same class+exam data (avoid duplicates)
+  marks = marks.filter(m => !(m.className === cls && m.exam === exam));
+
+  students.forEach(s => {
+
+    const markObj = {
+      studentId: s.id,
+      name: s.name,
+      roll: s.roll,
+      className: cls,
+      exam: exam,
+
+      bangla: Number(document.querySelector(`[name="bangla_${s.id}"]`)?.value || 0),
+      english: Number(document.querySelector(`[name="english_${s.id}"]`)?.value || 0),
+      math: Number(document.querySelector(`[name="math_${s.id}"]`)?.value || 0),
+      science: Number(document.querySelector(`[name="science_${s.id}"]`)?.value || 0),
+      bgs: Number(document.querySelector(`[name="bgs_${s.id}"]`)?.value || 0),
+      religion: Number(document.querySelector(`[name="religion_${s.id}"]`)?.value || 0)
+
+    };
+
+    marks.push(markObj);
+
+  });
+
+  localStorage.setItem("marks", JSON.stringify(marks));
+
+  alert("নম্বর সফলভাবে সংরক্ষণ হয়েছে");
 
 });
-
-// =====================
-// SAVE MARKS (FIXED)
-// =====================
-document.getElementById("marksForm").addEventListener("submit", function(e){
-e.preventDefault();
-
-const cls = classSelect.value;
-const exam = examName.value;
-
-if(!cls){
-alert("শ্রেণি নির্বাচন করুন");
-return;
-}
-
-const students = getStudents().filter(s => s.className === cls);
-
-let marks = JSON.parse(localStorage.getItem("marks")) || [];
-
-// =====================
-// CLEAN OLD CLASS DATA (IMPORTANT FIX)
-// =====================
-marks = marks.filter(m => !(m.className === cls && m.exam === exam));
-
-// =====================
-// SAVE NEW DATA
-// =====================
-students.forEach(s => {
-
-marks.push({
-studentId: s.id,
-name: s.name,
-roll: s.roll,
-className: cls,
-exam: exam,
-
-bangla: Number(document.querySelector(`[name="bangla_${s.id}"]`)?.value || 0),
-english: Number(document.querySelector(`[name="english_${s.id}"]`)?.value || 0),
-math: Number(document.querySelector(`[name="math_${s.id}"]`)?.value || 0),
-science: Number(document.querySelector(`[name="science_${s.id}"]`)?.value || 0),
-bgs: Number(document.querySelector(`[name="bgs_${s.id}"]`)?.value || 0),
-religion: Number(document.querySelector(`[name="religion_${s.id}"]`)?.value || 0)
-
-});
-
-});
-
-localStorage.setItem("marks", JSON.stringify(marks));
-
-alert("নম্বর সংরক্ষণ সম্পন্ন হয়েছে");
-
-});
-
 </script>
 
 </body>
