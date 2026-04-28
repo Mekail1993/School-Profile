@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>অফিসিয়াল প্যাড</title><link rel="stylesheet" href="styles.css" /></head><body>
+<header><h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1><p>অফিসিয়াল প্যাড ও লেখনী ব্যবস্থা</p></header>
+<nav class="menu-bar"><a href="index.html">ড্যাশবোর্ড</a><a href="school-profile.html">স্কুল প্রোফাইল</a><a href="teachers.html">শিক্ষক</a><a href="configure.html">সেটিংস</a><a href="students.html">শিক্ষার্থী এন্ট্রি</a><a href="marks.html">নম্বর এন্ট্রি</a><a href="class-routine.html">ক্লাস রুটিন</a><a href="leave-management.html">ছুটি ব্যবস্থাপনা</a><a href="official-pad.html">অফিসিয়াল প্যাড</a><a href="documents.html">ডকুমেন্টস</a></nav>
+<main><section class="card"><h2>অফিসিয়াল পত্র প্রস্তুত</h2><form id="officialPadForm" class="grid"><label>চিঠির বিষয় <input id="padSubject" name="subject" required /></label><label>প্রাপক <input id="padRecipient" name="recipient" required /></label><label>তারিখ <input id="padDate" name="date" type="date" required /></label><label>রেফারেন্স নং <input id="padReference" name="reference" /></label></form><label>বিষয়বস্তু</label><textarea id="padBody" rows="10" style="width:100%;margin-top:.4rem;">মাননীয় মহোদয়,
+
+বিনীত নিবেদন এই যে...
+
+ধন্যবাদান্তে,
+</textarea><div class="doc-buttons"><button id="previewPadBtn">প্রিভিউ</button><button id="printPadBtn">প্রিন্ট</button></div><article id="officialPadOutput" class="output"></article></section></main>
+<script src="documentGenerators.js"></script><script src="app.js"></script></body></html>

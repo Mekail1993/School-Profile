@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>স্কুল পোর্টাল - ড্যাশবোর্ড</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header><h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1><p>ড্যাশবোর্ড</p></header>
+  <nav class="menu-bar">
+    <a href="index.html">ড্যাশবোর্ড</a>
+    <a href="school-profile.html">স্কুল প্রোফাইল</a>
+    <a href="teachers.html">শিক্ষক</a>
+    <a href="configure.html">সেটিংস</a>
+    <a href="students.html">শিক্ষার্থী এন্ট্রি</a>
+    <a href="marks.html">নম্বর এন্ট্রি</a>
+    <a href="class-routine.html">ক্লাস রুটিন</a>
+    <a href="leave-management.html">ছুটি ব্যবস্থাপনা</a>
+    <a href="official-pad.html">অফিসিয়াল প্যাড</a>
+    <a href="documents.html">ডকুমেন্টস</a>
+  </nav>
+  <main>
+    <section class="card">
+      <h2>ড্যাশবোর্ড</h2>
+      <div class="stats-grid" id="statsGrid"></div>
+      <h3>শ্রেণিভিত্তিক শিক্ষার্থীর বণ্টন</h3>
+      <div id="classDistribution" class="distribution"></div>
+      <div class="toolbar">
+        <button id="exportBtn">শিক্ষার্থী তালিকা এক্সপোর্ট (JSON)</button>
+        <label class="file-input">শিক্ষার্থী তালিকা ইমপোর্ট (JSON)
+          <input type="file" id="importInput" accept="application/json" />
+        </label>
+      </div>
+    </section>
+  </main>
+  <script src="documentGenerators.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
