@@ -1,5 +1,198 @@
-<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>নম্বর এন্ট্রি</title><link rel="stylesheet" href="styles.css" /></head><body>
-<header><h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1><p>নম্বর এন্ট্রি</p></header>
-<nav class="menu-bar"><a href="index.html">ড্যাশবোর্ড</a><a href="school-profile.html">স্কুল প্রোফাইল</a><a href="teachers.html">শিক্ষক</a><a href="configure.html">সেটিংস</a><a href="students.html">শিক্ষার্থী এন্ট্রি</a><a href="marks.html">নম্বর এন্ট্রি</a><a href="class-routine.html">ক্লাস রুটিন</a><a href="leave-management.html">ছুটি ব্যবস্থাপনা</a><a href="official-pad.html">অফিসিয়াল প্যাড</a><a href="documents.html">ডকুমেন্টস</a></nav>
-<main><section class="card"><h2>নম্বর এন্ট্রি</h2><form id="marksForm"><div class="grid"><label>শিক্ষার্থী<select required id="marksStudentId" name="id"></select></label><div id="marksFields"></div></div><div class="doc-buttons"><button type="button" id="loadMarksBtn">বিদ্যমান নম্বর লোড</button><button id="marksSubmitBtn" type="submit">নম্বর সংরক্ষণ</button></div></form></section></main>
-<script src="documentGenerators.js"></script><script src="app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>নম্বর এন্ট্রি</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+<header>
+<h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1>
+<p>নম্বর এন্ট্রি</p>
+</header>
+
+<nav class="menu-bar">
+<a href="index.html">ড্যাশবোর্ড</a>
+<a href="school-profile.html">স্কুল প্রোফাইল</a>
+<a href="teachers.html">শিক্ষক</a>
+<a href="configure.html">সেটিংস</a>
+<a href="students.html">শিক্ষার্থী এন্ট্রি</a>
+<a href="marks.html">নম্বর এন্ট্রি</a>
+<a href="class-routine.html">ক্লাস রুটিন</a>
+<a href="leave-management.html">ছুটি ব্যবস্থাপনা</a>
+<a href="official-pad.html">অফিসিয়াল প্যাড</a>
+<a href="documents.html">ডকুমেন্টস</a>
+</nav>
+
+<main>
+
+<section class="card">
+<h2>নম্বর এন্ট্রি</h2>
+
+<div class="grid">
+
+<label>
+শিক্ষাবর্ষ
+<select id="yearSelect">
+<option>২০২৬</option>
+<option>২০২৭</option>
+</select>
+</label>
+
+<label>
+পরীক্ষা
+<select id="examSelect">
+<option>প্রথম সাময়িক</option>
+<option>অর্ধবার্ষিক</option>
+<option>বার্ষিক</option>
+</select>
+</label>
+
+<label>
+শ্রেণি নির্বাচন করুন
+<select id="classSelect">
+<option value="">নির্বাচন করুন</option>
+<option value="প্রাক-প্রাথমিক">প্রাক-প্রাথমিক</option>
+<option value="১ম শ্রেণি">১ম শ্রেণি</option>
+<option value="২য় শ্রেণি">২য় শ্রেণি</option>
+<option value="৩য় শ্রেণি">৩য় শ্রেণি</option>
+<option value="৪র্থ শ্রেণি">৪র্থ শ্রেণি</option>
+<option value="৫ম শ্রেণি">৫ম শ্রেণি</option>
+</select>
+</label>
+
+</div>
+</section>
+
+<section class="card" id="studentListCard" style="display:none;">
+<h2>শিক্ষার্থী তালিকা</h2>
+<div id="studentList"></div>
+</section>
+
+<section class="card" id="marksCard" style="display:none;">
+<h2>বিষয়ভিত্তিক নম্বর এন্ট্রি</h2>
+
+<form id="marksForm">
+
+<div class="grid">
+<label>
+শিক্ষার্থীর নাম
+<input type="text" id="studentName" readonly>
+</label>
+
+<label>
+রোল নম্বর
+<input type="text" id="studentRoll" readonly>
+</label>
+
+<label>
+শ্রেণি
+<input type="text" id="studentClass" readonly>
+</label>
+</div>
+
+<div class="grid">
+<label>বাংলা<input type="number" min="0" max="100"></label>
+<label>ইংরেজি<input type="number" min="0" max="100"></label>
+<label>গণিত<input type="number" min="0" max="100"></label>
+<label>বিজ্ঞান<input type="number" min="0" max="100"></label>
+<label>বাংলাদেশ ও বিশ্বপরিচয়<input type="number" min="0" max="100"></label>
+<label>ধর্ম<input type="number" min="0" max="100"></label>
+</div>
+
+<div class="doc-buttons">
+<button type="submit">নম্বর সংরক্ষণ</button>
+</div>
+
+</form>
+</section>
+
+</main>
+
+<script>
+const classSelect = document.getElementById("classSelect");
+const studentListCard = document.getElementById("studentListCard");
+const studentList = document.getElementById("studentList");
+const marksCard = document.getElementById("marksCard");
+
+/*
+শিক্ষার্থী ডাটা students.html থেকে localStorage এ থাকবে
+উদাহরণ:
+[
+ {name:"রিমন", roll:"1", className:"১ম শ্রেণি"},
+ {name:"মিম", roll:"2", className:"১ম শ্রেণি"}
+]
+*/
+
+function getStudents(){
+return JSON.parse(localStorage.getItem("students")) || [];
+}
+
+classSelect.addEventListener("change", function(){
+
+const selectedClass = this.value;
+const allStudents = getStudents();
+
+studentList.innerHTML = "";
+marksCard.style.display = "none";
+
+if(selectedClass === ""){
+studentListCard.style.display = "none";
+return;
+}
+
+const filtered = allStudents.filter(student => student.className === selectedClass);
+
+studentListCard.style.display = "block";
+
+if(filtered.length === 0){
+studentList.innerHTML = "<p>এই শ্রেণিতে কোনো শিক্ষার্থী পাওয়া যায়নি</p>";
+return;
+}
+
+filtered.forEach(student => {
+
+const btn = document.createElement("button");
+btn.type = "button";
+btn.className = "student-btn";
+btn.style.width = "100%";
+btn.style.marginBottom = "10px";
+
+btn.textContent =
+"রোল " + student.roll + " - " + student.name;
+
+btn.onclick = function(){
+
+document.getElementById("studentName").value = student.name;
+document.getElementById("studentRoll").value = student.roll;
+document.getElementById("studentClass").value = student.className;
+
+marksCard.style.display = "block";
+
+window.scrollTo({
+top: marksCard.offsetTop,
+behavior:"smooth"
+});
+
+};
+
+studentList.appendChild(btn);
+
+});
+
+});
+
+document.getElementById("marksForm").addEventListener("submit", function(e){
+e.preventDefault();
+alert("নম্বর সফলভাবে সংরক্ষণ করা হয়েছে");
+});
+</script>
+
+<script src="documentGenerators.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
