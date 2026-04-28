@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bangladesh Primary School Management</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Bangladesh Primary School Management Portal</h1>
+    <p>Dynamic dashboard with student records, document generation, and PDF downloads.</p>
+  </header>
+
+  <nav class="menu-bar" aria-label="Main navigation">
+    <a href="#dashboard">Dashboard</a>
+    <a href="#school-profile">School Profile</a>
+    <a href="#teachers">Teachers</a>
+    <a href="#configure">Configure</a>
+    <a href="#registration">Student Entry</a>
+    <a href="#marks">Marks Entry</a>
+    <a href="#documents">Documents</a>
+  </nav>
+
+  <main>
+    <section id="dashboard" class="card">
+      <h2>Dashboard</h2>
+      <div class="stats-grid" id="statsGrid"></div>
+      <h3>Class-wise Student Distribution</h3>
+      <div id="classDistribution" class="distribution"></div>
+      <div class="toolbar">
+        <button id="exportBtn">Export Student List (JSON)</button>
+        <label class="file-input">Import Student List (JSON)
+          <input type="file" id="importInput" accept="application/json" />
+        </label>
+      </div>
+    </section>
+
+    <section id="school-profile" class="card">
+      <h2>School Profile</h2>
+      <form id="schoolProfileForm" class="grid">
+        <label>School Name <input id="schoolName" name="schoolName" value="Bangladesh Primary School" /></label>
+        <label>EIIN / School Code <input id="schoolCode" name="schoolCode" placeholder="School code" /></label>
+        <label>School Address <input id="schoolAddress" name="schoolAddress" placeholder="Village, Upazila, District" /></label>
+        <label>Contact Number <input id="schoolPhone" name="schoolPhone" placeholder="01XXXXXXXXX" /></label>
+        <label>Head Teacher <input id="headTeacher" name="headTeacher" placeholder="Head teacher name" /></label>
+        <button type="submit">Save School Profile</button>
+      </form>
+    </section>
+
+    <section id="teachers" class="card">
+      <h2>Teacher Management</h2>
+      <form id="teacherForm" class="grid">
+        <label>Teacher Name <input required name="name" placeholder="Teacher full name" /></label>
+        <label>Designation <input name="designation" placeholder="Assistant Teacher" /></label>
+        <label>Mobile <input name="mobile" placeholder="01XXXXXXXXX" /></label>
+        <button type="submit">Add Teacher</button>
+      </form>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Designation</th><th>Mobile</th><th>Action</th></tr></thead>
+          <tbody id="teacherTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="configure" class="card">
+      <h2>Configuration</h2>
+      <form id="configForm" class="grid">
+        <label>Academic Year <input id="cfgAcademicYear" name="academicYear" value="2026" /></label>
+        <label>Passing Mark <input id="cfgPassMark" type="number" name="passMark" min="1" max="100" value="33" /></label>
+        <label>Default GPA Scale
+          <select id="cfgGpaScale" name="gpaScale">
+            <option value="5">5.00</option>
+            <option value="4">4.00</option>
+          </select>
+        </label>
+        <label class="checkbox">
+          <input id="cfgShowLogo" type="checkbox" name="showLogo" checked />
+          Show school identity block in documents
+        </label>
+        <button type="submit">Save Configuration</button>
+      </form>
+    </section>
+
+    <section id="registration" class="card">
+      <h2>Student Entry</h2>
+      <form id="studentForm">
+        <div class="grid">
+          <label>User ID <input required name="id" placeholder="e.g. 2026-001" /></label>
+          <label>Full Name <input required name="name" placeholder="Student name" /></label>
+          <label>Roll No <input required type="number" min="1" name="roll" /></label>
+          <label>Class
+            <select name="className">
+              <option>Class 1</option>
+              <option>Class 2</option>
+              <option>Class 3</option>
+              <option>Class 4</option>
+              <option>Class 5</option>
+            </select>
+          </label>
+          <label>Section <input name="section" placeholder="A/B/C" /></label>
+          <label>Guardian Name <input name="guardian" /></label>
+          <label>Mobile <input name="mobile" placeholder="01XXXXXXXXX" /></label>
+          <label>Date of Birth <input type="date" name="dob" /></label>
+        </div>
+        <button type="submit">Save Student</button>
+      </form>
+    </section>
+
+    <section id="marks" class="card">
+      <h2>Marks Entry</h2>
+      <form id="marksForm">
+        <div class="grid">
+          <label>Student
+            <select required id="marksStudentId" name="id"></select>
+          </label>
+          <label>Bangla <input required type="number" min="0" max="100" name="bangla" /></label>
+          <label>English <input required type="number" min="0" max="100" name="english" /></label>
+          <label>Math <input required type="number" min="0" max="100" name="math" /></label>
+          <label>Science <input required type="number" min="0" max="100" name="science" /></label>
+          <label>Religion <input required type="number" min="0" max="100" name="religion" /></label>
+        </div>
+        <button type="submit">Save Marks</button>
+      </form>
+    </section>
+
+    <section id="students" class="card">
+      <h2>Students</h2>
+      <div class="toolbar">
+        <label>Select Student
+          <select id="studentSelector"></select>
+        </label>
+        <button id="deleteBtn" class="danger">Delete Selected</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User ID</th><th>Name</th><th>Class</th><th>Section</th><th>Roll No</th><th>Marks</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="documents" class="card docs">
+      <h2>Document Center</h2>
+      <div class="grid">
+        <label>School Name <input id="optSchoolName" value="Bangladesh Primary School" /></label>
+        <label>Exam Name <input id="optExamName" value="Annual Assessment 2026" /></label>
+        <label>Center Name <input id="optCenterName" value="Main Campus Hall" /></label>
+        <label>Footer Note <input id="optFooterNote" value="Generated by School Management Portal" /></label>
+      </div>
+      <div class="grid">
+        <label>Admit Card Instructions <input id="optAdmitInstructions" value="Bring admit card to exam hall." /></label>
+        <label>Seat Plan Instructions <input id="optSeatInstructions" value="Reach center 30 minutes before exam." /></label>
+        <label>Progress Report Comment <input id="optProgressComment" value="Keep up the effort." /></label>
+        <label>Marksheet Comment <input id="optMarksheetComment" value="Promoted to next class." /></label>
+        <label>Authorized Teacher
+          <select id="optAuthorizedTeacher"></select>
+        </label>
+      </div>
+
+      <div class="doc-buttons">
+        <button data-doc="admit">Preview Admit Card</button>
+        <button data-doc="seat">Preview Seat Plan</button>
+        <button data-doc="progress">Preview Progress Report</button>
+        <button data-doc="tabulation">Preview Tabulation Sheet</button>
+        <button data-doc="marksheet">Preview Marksheet</button>
+      </div>
+
+      <div class="doc-buttons">
+        <button data-download="admit">Download Admit PDF</button>
+        <button data-download="seat">Download Seat Plan PDF</button>
+        <button data-download="progress">Download Progress PDF</button>
+        <button data-download="tabulation">Download Tabulation PDF</button>
+        <button data-download="marksheet">Download Marksheet PDF</button>
+        <button id="batchDownloadBtn">Batch Download All PDFs</button>
+      </div>
+
+      <article id="documentOutput" class="output"></article>
+      <button id="printBtn">Print Current Document</button>
+    </section>
+  </main>
+
+  <footer>
+    <small>Developed for Bangladesh Primary School administration workflow.</small>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="documentGenerators.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
