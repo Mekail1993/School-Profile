@@ -155,6 +155,28 @@ th, td {
   padding: 1rem;
 }
 .output h3 { margin-top: 0; }
+.doc-sheet {
+  border: 2px solid #003f2e;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #fff;
+}
+.doc-head {
+  border-bottom: 1px solid #bfd2ea;
+  margin-bottom: 0.75rem;
+}
+.doc-head h3 { margin: 0 0 0.35rem; }
+.doc-head p, .doc-foot { margin: 0.2rem 0; font-size: 0.9rem; }
+.doc-body .doc-note {
+  background: #f3f8ff;
+  border-left: 4px solid #3b6ea8;
+  padding: 0.4rem 0.6rem;
+}
+.doc-admit { border-color: #0d7c5f; }
+.doc-seat { border-color: #1d4b8f; }
+.doc-progress { border-color: #7b3f00; }
+.doc-tabulation { border-color: #5b2d82; }
+.doc-marksheet { border-color: #b0422a; }
 @media print {
   body * { visibility: hidden; }
   .menu-bar { display: none; }

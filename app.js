@@ -1,17 +1,3 @@
-const form = document.getElementById('studentForm');
-const marksForm = document.getElementById('marksForm');
-const marksStudentId = document.getElementById('marksStudentId');
-const tableBody = document.getElementById('studentTableBody');
-const selector = document.getElementById('studentSelector');
-const output = document.getElementById('documentOutput');
-const statsGrid = document.getElementById('statsGrid');
-const classDistribution = document.getElementById('classDistribution');
-const importInput = document.getElementById('importInput');
-const schoolProfileForm = document.getElementById('schoolProfileForm');
-const teacherForm = document.getElementById('teacherForm');
-const configForm = document.getElementById('configForm');
-const teacherTableBody = document.getElementById('teacherTableBody');
-const authorizedTeacherSelect = document.getElementById('optAuthorizedTeacher');
 const SUBJECTS = ['bangla', 'english', 'math', 'science', 'religion'];
 
 const getStudents = () => JSON.parse(localStorage.getItem('students') || '[]');
@@ -23,353 +9,294 @@ const setTeachers = (teachers) => localStorage.setItem('teachers', JSON.stringif
 const getConfig = () => JSON.parse(localStorage.getItem('config') || '{}');
 const setConfig = (config) => localStorage.setItem('config', JSON.stringify(config));
 
-function getDocOptions() {
-  const schoolProfile = getSchoolProfile();
-  const config = getConfig();
-  return {
-    schoolName: document.getElementById('optSchoolName').value.trim() || schoolProfile.schoolName || 'Bangladesh Primary School',
-    schoolCode: schoolProfile.schoolCode || '-',
-    schoolAddress: schoolProfile.schoolAddress || '-',
-    schoolPhone: schoolProfile.schoolPhone || '-',
-    headTeacher: schoolProfile.headTeacher || '-',
-    academicYear: config.academicYear || '2026',
-    passMark: Number(config.passMark || 33),
-    showLogo: Boolean(config.showLogo),
-    examName: document.getElementById('optExamName').value.trim() || 'Annual Assessment',
-    centerName: document.getElementById('optCenterName').value.trim() || 'Main Campus Hall',
-    footerNote: document.getElementById('optFooterNote').value.trim() || '',
-    admitInstructions: document.getElementById('optAdmitInstructions').value.trim() || '',
-    seatInstructions: document.getElementById('optSeatInstructions').value.trim() || '',
-    progressComment: document.getElementById('optProgressComment').value.trim() || '',
-    marksheetComment: document.getElementById('optMarksheetComment').value.trim() || '',
-    authorizedTeacher: authorizedTeacherSelect.value || '-'
-  };
-}
+const el = (id) => document.getElementById(id);
 
 function hasMarks(student) {
   return SUBJECTS.every((subject) => student[subject] !== undefined && student[subject] !== '');
 }
 
-function renderTeachers() {
-  const teachers = getTeachers();
-  teacherTableBody.innerHTML = '';
-  authorizedTeacherSelect.innerHTML = '<option value="">Select Teacher</option>';
-
-  teachers.forEach((teacher, index) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${teacher.name}</td>
-      <td>${teacher.designation || '-'}</td>
-      <td>${teacher.mobile || '-'}</td>
-      <td><button type="button" class="danger" data-teacher-delete="${index}">Delete</button></td>
-    `;
-    teacherTableBody.appendChild(row);
-
-    const option = document.createElement('option');
-    option.value = teacher.name;
-    option.textContent = `${teacher.name} (${teacher.designation || 'Teacher'})`;
-    authorizedTeacherSelect.appendChild(option);
+function populateStudentSelectors() {
+  const selectors = [el('studentSelector'), el('marksStudentId')].filter(Boolean);
+  selectors.forEach((select) => {
+    select.innerHTML = '<option value="">নির্বাচন করুন</option>';
+    getStudents().forEach((student) => {
+      const option = document.createElement('option');
+      option.value = student.id;
+      option.textContent = `${student.id} - ${student.name}`;
+      select.appendChild(option);
+    });
   });
 }
 
-function loadSettingsIntoForms() {
-  const schoolProfile = getSchoolProfile();
-  document.getElementById('schoolName').value = schoolProfile.schoolName || 'Bangladesh Primary School';
-  document.getElementById('schoolCode').value = schoolProfile.schoolCode || '';
-  document.getElementById('schoolAddress').value = schoolProfile.schoolAddress || '';
-  document.getElementById('schoolPhone').value = schoolProfile.schoolPhone || '';
-  document.getElementById('headTeacher').value = schoolProfile.headTeacher || '';
+function refreshStudentTable() {
+  const body = el('studentTableBody');
+  if (!body) return;
+  body.innerHTML = '';
 
-  document.getElementById('optSchoolName').value = schoolProfile.schoolName || 'Bangladesh Primary School';
-
-  const config = getConfig();
-  document.getElementById('cfgAcademicYear').value = config.academicYear || '2026';
-  document.getElementById('cfgPassMark').value = config.passMark || 33;
-  document.getElementById('cfgGpaScale').value = config.gpaScale || '5';
-  document.getElementById('cfgShowLogo').checked = config.showLogo !== false;
+  getStudents().forEach((student) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${student.id}</td><td>${student.name}</td><td>${student.className || '-'}</td><td>${student.section || '-'}</td><td>${student.roll}</td><td>${hasMarks(student) ? 'সম্পন্ন' : 'বাকি'}</td>`;
+    body.appendChild(row);
+  });
 }
 
-function renderDashboard(students) {
+function renderDashboard() {
+  const statsGrid = el('statsGrid');
+  const classDistribution = el('classDistribution');
+  if (!statsGrid || !classDistribution) return;
+
+  const students = getStudents();
   const markedStudents = students.filter(hasMarks);
   const passMark = Number(getConfig().passMark || 33);
   const passed = markedStudents.filter((student) => DocumentGenerators.calculateResult(student, passMark).status === 'Pass');
-  const averageGpa = markedStudents.length
+  const avgGpa = markedStudents.length
     ? (markedStudents.reduce((sum, student) => sum + Number(DocumentGenerators.calculateResult(student, passMark).gpa), 0) / markedStudents.length).toFixed(2)
     : '0.00';
 
   const cards = [
-    { title: 'Total Students', value: students.length },
-    { title: 'Marks Entered', value: markedStudents.length },
-    { title: 'Pass Rate', value: `${markedStudents.length ? Math.round((passed.length / markedStudents.length) * 100) : 0}%` },
-    { title: 'Average GPA', value: averageGpa }
+    { title: 'মোট শিক্ষার্থী', value: students.length },
+    { title: 'নম্বর এন্ট্রি সম্পন্ন', value: markedStudents.length },
+    { title: 'পাসের হার', value: `${markedStudents.length ? Math.round((passed.length / markedStudents.length) * 100) : 0}%` },
+    { title: 'গড় GPA', value: avgGpa }
   ];
+  statsGrid.innerHTML = cards.map((card) => `<div class="stat-card"><h4>${card.title}</h4><p>${card.value}</p></div>`).join('');
 
-  statsGrid.innerHTML = cards.map((card) => `
-    <div class="stat-card">
-      <h4>${card.title}</h4>
-      <p>${card.value}</p>
-    </div>
-  `).join('');
-
-  const distributionMap = students.reduce((acc, student) => {
-    const key = student.className || 'Unassigned';
+  const byClass = students.reduce((acc, s) => {
+    const key = s.className || 'শ্রেণি নির্ধারিত নয়';
     acc[key] = (acc[key] || 0) + 1;
     return acc;
   }, {});
-
-  const maxCount = Math.max(...Object.values(distributionMap), 1);
-  classDistribution.innerHTML = Object.entries(distributionMap).map(([className, count]) => `
-    <div class="dist-row">
-      <span>${className}</span>
-      <div class="bar-wrap"><div class="bar" style="width:${(count / maxCount) * 100}%"></div></div>
-      <strong>${count}</strong>
-    </div>
-  `).join('') || '<p>No student data available.</p>';
+  const max = Math.max(...Object.values(byClass), 1);
+  classDistribution.innerHTML = Object.entries(byClass).map(([name, count]) => `<div class="dist-row"><span>${name}</span><div class="bar-wrap"><div class="bar" style="width:${(count / max) * 100}%"></div></div><strong>${count}</strong></div>`).join('') || '<p>কোনো শিক্ষার্থী তথ্য পাওয়া যায়নি।</p>';
 }
 
-function refreshUI() {
-  const students = getStudents();
-  tableBody.innerHTML = '';
-  selector.innerHTML = '<option value="">Select</option>';
-  marksStudentId.innerHTML = '<option value="">Select</option>';
+function renderTeachers() {
+  const table = el('teacherTableBody');
+  const authSelect = el('optAuthorizedTeacher');
+  const teachers = getTeachers();
 
-  students.sort((a, b) => (a.className + a.section + Number(a.roll)).localeCompare(b.className + b.section + Number(b.roll)));
+  if (table) {
+    table.innerHTML = '';
+    teachers.forEach((teacher, index) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${teacher.name}</td><td>${teacher.designation || '-'}</td><td>${teacher.mobile || '-'}</td><td><button type="button" class="danger" data-teacher-delete="${index}">Delete</button></td>`;
+      table.appendChild(row);
+    });
+  }
 
-  students.forEach((student) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${student.id}</td>
-      <td>${student.name}</td>
-      <td>${student.className || '-'}</td>
-      <td>${student.section || '-'}</td>
-      <td>${student.roll}</td>
-      <td>${hasMarks(student) ? 'Entered' : 'Pending'}</td>
-    `;
-    tableBody.appendChild(row);
-
-    const option = document.createElement('option');
-    option.value = student.id;
-    option.textContent = `${student.id} - ${student.name}`;
-    selector.appendChild(option);
-    marksStudentId.appendChild(option.cloneNode(true));
-  });
-
-  renderDashboard(students);
+  if (authSelect) {
+    authSelect.innerHTML = '<option value="">শিক্ষক নির্বাচন করুন</option>';
+    teachers.forEach((teacher) => {
+      const option = document.createElement('option');
+      option.value = teacher.name;
+      option.textContent = `${teacher.name} (${teacher.designation || 'শিক্ষক'})`;
+      authSelect.appendChild(option);
+    });
+  }
 }
 
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const student = Object.fromEntries(new FormData(form).entries());
-
-  if (!student.id || !student.name || !student.roll) {
-    alert('User ID, Name, and Roll No are mandatory.');
-    return;
-  }
-
-  const students = getStudents();
-  if (students.some((s) => s.id === student.id)) {
-    alert('User ID already exists. Use a unique ID.');
-    return;
-  }
-
-  setStudents([...students, student]);
-  form.reset();
-  refreshUI();
-});
-
-marksForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const { id, ...marks } = Object.fromEntries(new FormData(marksForm).entries());
-
-  const students = getStudents();
-  const student = students.find((item) => item.id === id);
-  if (!student) return alert('Please select a valid student for marks entry.');
-
-  SUBJECTS.forEach((subject) => {
-    student[subject] = marks[subject];
-  });
-
-  setStudents(students);
-  marksForm.reset();
-  refreshUI();
-});
-
-schoolProfileForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const profile = Object.fromEntries(new FormData(schoolProfileForm).entries());
-  setSchoolProfile(profile);
-  document.getElementById('optSchoolName').value = profile.schoolName || 'Bangladesh Primary School';
-  alert('School profile updated.');
-});
-
-teacherForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const teacher = Object.fromEntries(new FormData(teacherForm).entries());
-  if (!teacher.name) {
-    alert('Teacher name is required.');
-    return;
-  }
-  setTeachers([...getTeachers(), teacher]);
-  teacherForm.reset();
-  renderTeachers();
-});
-
-teacherTableBody.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-teacher-delete]');
-  if (!button) return;
-  const index = Number(button.dataset.teacherDelete);
-  const teachers = getTeachers().filter((_, idx) => idx !== index);
-  setTeachers(teachers);
-  renderTeachers();
-});
-
-configForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const config = Object.fromEntries(new FormData(configForm).entries());
-  config.showLogo = document.getElementById('cfgShowLogo').checked;
-  setConfig(config);
-  refreshUI();
-  alert('Configuration saved.');
-});
-
-document.getElementById('deleteBtn').addEventListener('click', () => {
-  const id = selector.value;
-  if (!id) return alert('Select a student first.');
-  setStudents(getStudents().filter((s) => s.id !== id));
-  output.innerHTML = '';
-  refreshUI();
-});
+function getDocOptions() {
+  const profile = getSchoolProfile();
+  const config = getConfig();
+  return {
+    schoolName: el('optSchoolName')?.value || profile.schoolName || 'বাংলাদেশ প্রাথমিক বিদ্যালয়',
+    schoolCode: profile.schoolCode || '-',
+    schoolAddress: profile.schoolAddress || '-',
+    schoolPhone: profile.schoolPhone || '-',
+    headTeacher: profile.headTeacher || '-',
+    academicYear: config.academicYear || '2026',
+    passMark: Number(config.passMark || 33),
+    examName: el('optExamName')?.value || 'বার্ষিক মূল্যায়ন',
+    centerName: el('optCenterName')?.value || 'মেইন ক্যাম্পাস হল',
+    footerNote: el('optFooterNote')?.value || '',
+    admitInstructions: el('optAdmitInstructions')?.value || '',
+    seatInstructions: el('optSeatInstructions')?.value || '',
+    progressComment: el('optProgressComment')?.value || '',
+    marksheetComment: el('optMarksheetComment')?.value || '',
+    authorizedTeacher: el('optAuthorizedTeacher')?.value || '-'
+  };
+}
 
 function getSelectedStudent() {
-  const id = selector.value;
-  if (!id) {
-    alert('Please select a student.');
-    return null;
-  }
-  return getStudents().find((s) => s.id === id);
+  const id = el('studentSelector')?.value;
+  if (!id) return null;
+  return getStudents().find((s) => s.id === id) || null;
+}
+
+function htmlToPdf(filename, html) {
+  if (!window.jspdf) return;
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+  const text = html.replace(/<br\s*\/?>/gi, '\n').replace(/<\/tr>/gi, '\n').replace(/<\/p>/gi, '\n').replace(/<[^>]+>/g, '').trim();
+  pdf.text(pdf.splitTextToSize(text, 540), 30, 40);
+  pdf.save(filename);
 }
 
 function generateDocumentHtml(type, student) {
   const options = getDocOptions();
+  const markedStudents = getStudents().filter(hasMarks);
+  if (type === 'tabulation') return DocumentGenerators.generateTabulationSheet(markedStudents, options);
   const generators = {
-    admit: () => DocumentGenerators.generateAdmitCard(student, options),
-    seat: () => DocumentGenerators.generateSeatPlan(student, options),
-    progress: () => DocumentGenerators.generateProgressReport(student, options),
-    tabulation: () => DocumentGenerators.generateTabulationSheet(getStudents().filter(hasMarks), options),
-    marksheet: () => DocumentGenerators.generateMarksheet(student, options)
+    admit: DocumentGenerators.generateAdmitCard,
+    seat: DocumentGenerators.generateSeatPlan,
+    progress: DocumentGenerators.generateProgressReport,
+    marksheet: DocumentGenerators.generateMarksheet
   };
-  return generators[type]();
+  return generators[type](student, options);
 }
 
-function htmlToPdf(filename, html) {
-  if (!window.jspdf) {
-    alert('PDF library failed to load.');
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
-  const text = html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/tr>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .trim();
-
-  const lines = pdf.splitTextToSize(text, 540);
-  pdf.text(lines, 30, 40);
-  pdf.save(filename);
-}
-
-function previewOrDownload(type, mode) {
-  const student = type === 'tabulation' ? null : getSelectedStudent();
-  if (type !== 'tabulation' && !student) return;
-
-  if ((type === 'progress' || type === 'marksheet') && !hasMarks(student)) {
-    alert('Please complete marks entry for this student first.');
-    return;
-  }
-
-  if (type === 'tabulation' && !getStudents().some(hasMarks)) {
-    alert('No marks entries found. Please save marks first.');
-    return;
-  }
-
-  const html = generateDocumentHtml(type, student);
-  if (mode === 'preview') {
-    output.innerHTML = html;
-  } else {
-    const selectedId = student ? student.id : 'all';
-    htmlToPdf(`${type}-${selectedId}.pdf`, html);
-  }
-}
-
-document.querySelectorAll('[data-doc]').forEach((button) => {
-  button.addEventListener('click', () => previewOrDownload(button.dataset.doc, 'preview'));
-});
-
-document.querySelectorAll('[data-download]').forEach((button) => {
-  button.addEventListener('click', () => previewOrDownload(button.dataset.download, 'download'));
-});
-
-document.getElementById('batchDownloadBtn').addEventListener('click', () => {
-  const student = getSelectedStudent();
-  if (!student) return;
-
-  const docs = ['admit', 'seat'];
-  if (hasMarks(student)) docs.push('progress', 'marksheet');
-  if (getStudents().some(hasMarks)) docs.push('tabulation');
-
-  docs.forEach((type, idx) => {
-    setTimeout(() => {
-      const html = generateDocumentHtml(type, student);
-      const id = type === 'tabulation' ? 'all' : student.id;
-      htmlToPdf(`${type}-${id}.pdf`, html);
-    }, idx * 400);
+function initForms() {
+  el('studentForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const student = Object.fromEntries(new FormData(e.target).entries());
+    if (!student.id || !student.name || !student.roll) return alert('ইউজার আইডি, নাম এবং রোল নম্বর বাধ্যতামূলক।');
+    if (getStudents().some((s) => s.id === student.id)) return alert('এই ইউজার আইডি ইতোমধ্যে রয়েছে।');
+    setStudents([...getStudents(), student]);
+    e.target.reset();
+    populateStudentSelectors();
+    refreshStudentTable();
+    renderDashboard();
   });
-});
 
-document.getElementById('printBtn').addEventListener('click', () => {
-  if (!output.textContent.trim()) return alert('Generate a document preview first.');
-  window.print();
-});
+  el('marksForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const { id, ...marks } = Object.fromEntries(new FormData(e.target).entries());
+    const students = getStudents();
+    const student = students.find((s) => s.id === id);
+    if (!student) return alert('সঠিক শিক্ষার্থী নির্বাচন করুন।');
+    SUBJECTS.forEach((subject) => { student[subject] = marks[subject]; });
+    setStudents(students);
+    e.target.reset();
+    refreshStudentTable();
+    renderDashboard();
+  });
 
-document.getElementById('exportBtn').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(getStudents(), null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = 'students-export.json';
-  anchor.click();
-  URL.revokeObjectURL(url);
-});
+  el('deleteBtn')?.addEventListener('click', () => {
+    const student = getSelectedStudent();
+    if (!student) return alert('প্রথমে শিক্ষার্থী নির্বাচন করুন।');
+    setStudents(getStudents().filter((s) => s.id !== student.id));
+    populateStudentSelectors();
+    refreshStudentTable();
+    renderDashboard();
+  });
 
-importInput.addEventListener('change', async (event) => {
-  const [file] = event.target.files;
-  if (!file) return;
+  el('schoolProfileForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    setSchoolProfile(Object.fromEntries(new FormData(e.target).entries()));
+    alert('স্কুল প্রোফাইল সংরক্ষিত হয়েছে।');
+  });
 
-  try {
-    const text = await file.text();
-    const parsed = JSON.parse(text);
-    if (!Array.isArray(parsed)) throw new Error('Invalid JSON format.');
+  el('teacherForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const teacher = Object.fromEntries(new FormData(e.target).entries());
+    if (!teacher.name) return alert('শিক্ষকের নাম বাধ্যতামূলক।');
+    setTeachers([...getTeachers(), teacher]);
+    e.target.reset();
+    renderTeachers();
+  });
 
-    const sanitized = parsed.filter((student) => student && student.id && student.name && student.roll);
-    if (!sanitized.length) {
-      alert('No valid student records found in imported file.');
-      return;
+  el('teacherTableBody')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-teacher-delete]');
+    if (!button) return;
+    const index = Number(button.dataset.teacherDelete);
+    setTeachers(getTeachers().filter((_, i) => i !== index));
+    renderTeachers();
+  });
+
+  el('configForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const config = Object.fromEntries(new FormData(e.target).entries());
+    config.showLogo = el('cfgShowLogo')?.checked;
+    setConfig(config);
+    renderDashboard();
+    alert('সেটিংস সংরক্ষিত হয়েছে।');
+  });
+}
+
+function initDashboardTransfer() {
+  el('exportBtn')?.addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(getStudents(), null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'students-export.json';
+    anchor.click();
+    URL.revokeObjectURL(url);
+  });
+
+  el('importInput')?.addEventListener('change', async (event) => {
+    const [file] = event.target.files;
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      if (!Array.isArray(parsed)) throw new Error('ভুল JSON ফরম্যাট।');
+      setStudents(parsed.filter((s) => s && s.id && s.name && s.roll));
+      populateStudentSelectors();
+      refreshStudentTable();
+      renderDashboard();
+      alert('শিক্ষার্থী তালিকা সফলভাবে ইমপোর্ট হয়েছে।');
+    } catch (error) {
+      alert(`ইমপোর্ট ব্যর্থ: ${error.message}`);
     }
+    event.target.value = '';
+  });
+}
 
-    setStudents(sanitized);
-    refreshUI();
-    alert('Student list imported successfully.');
-  } catch (error) {
-    alert(`Import failed: ${error.message}`);
-  } finally {
-    importInput.value = '';
-  }
-});
+function initDocuments() {
+  if (!el('documentOutput')) return;
 
-loadSettingsIntoForms();
+  const handler = (type, mode) => {
+    const student = type === 'tabulation' ? null : getSelectedStudent();
+    if (type !== 'tabulation' && !student) return alert('প্রথমে শিক্ষার্থী নির্বাচন করুন।');
+    if ((type === 'progress' || type === 'marksheet') && !hasMarks(student)) return alert('এই শিক্ষার্থীর নম্বর এন্ট্রি আগে সম্পন্ন করুন।');
+    const html = generateDocumentHtml(type, student);
+    if (mode === 'preview') el('documentOutput').innerHTML = html;
+    else htmlToPdf(`${type}-${student ? student.id : 'all'}.pdf`, html);
+  };
+
+  document.querySelectorAll('[data-doc]').forEach((button) => {
+    button.addEventListener('click', () => handler(button.dataset.doc, 'preview'));
+  });
+  document.querySelectorAll('[data-download]').forEach((button) => {
+    button.addEventListener('click', () => handler(button.dataset.download, 'download'));
+  });
+
+  el('batchDownloadBtn')?.addEventListener('click', () => {
+    const student = getSelectedStudent();
+    if (!student) return alert('প্রথমে শিক্ষার্থী নির্বাচন করুন।');
+    const docs = ['admit', 'seat'];
+    if (hasMarks(student)) docs.push('progress', 'marksheet');
+    if (getStudents().some(hasMarks)) docs.push('tabulation');
+    docs.forEach((type, idx) => setTimeout(() => handler(type, 'download'), idx * 350));
+  });
+
+  el('printBtn')?.addEventListener('click', () => {
+    if (!el('documentOutput').textContent.trim()) return alert('প্রথমে ডকুমেন্ট প্রিভিউ তৈরি করুন।');
+    window.print();
+  });
+}
+
+function loadSettings() {
+  const profile = getSchoolProfile();
+  if (el('schoolName')) el('schoolName').value = profile.schoolName || 'বাংলাদেশ প্রাথমিক বিদ্যালয়';
+  if (el('schoolCode')) el('schoolCode').value = profile.schoolCode || '';
+  if (el('schoolAddress')) el('schoolAddress').value = profile.schoolAddress || '';
+  if (el('schoolPhone')) el('schoolPhone').value = profile.schoolPhone || '';
+  if (el('headTeacher')) el('headTeacher').value = profile.headTeacher || '';
+  if (el('optSchoolName')) el('optSchoolName').value = profile.schoolName || 'বাংলাদেশ প্রাথমিক বিদ্যালয়';
+
+  const config = getConfig();
+  if (el('cfgAcademicYear')) el('cfgAcademicYear').value = config.academicYear || '2026';
+  if (el('cfgPassMark')) el('cfgPassMark').value = config.passMark || 33;
+  if (el('cfgGpaScale')) el('cfgGpaScale').value = config.gpaScale || '5';
+  if (el('cfgShowLogo')) el('cfgShowLogo').checked = config.showLogo !== false;
+}
+
+loadSettings();
 renderTeachers();
-refreshUI();
+populateStudentSelectors();
+refreshStudentTable();
+renderDashboard();
+initForms();
+initDashboardTransfer();
+initDocuments();
