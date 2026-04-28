@@ -37,9 +37,9 @@ const DocumentGenerators = (() => {
   // =========================
   // RESULT CALCULATION
   // =========================
-  function calculateResult(student, passMark = 33) {
+  function calculateResult(data, passMark = 33) {
 
-    const marks = SUBJECTS.map(s => Number(student[s] || 0));
+    const marks = SUBJECTS.map(s => Number(data[s] || 0));
 
     const total = marks.reduce((a, b) => a + b, 0);
 
@@ -53,19 +53,17 @@ const DocumentGenerators = (() => {
   }
 
   // =========================
-  // SHELL WRAPPER
+  // SHELL
   // =========================
   function shell(title, type, body, options = {}) {
-
-    const schoolBlock = options.showSchoolInfo
-      ? `<p>${options.schoolName || ""}</p><p>${options.schoolAddress || ""}</p>`
-      : "";
 
     return `
       <div class="doc-sheet ${type}">
         <header>
           <h3>${title}</h3>
-          ${schoolBlock}
+
+          ${options.schoolName ? `<p>${options.schoolName}</p>` : ""}
+          ${options.schoolAddress ? `<p>${options.schoolAddress}</p>` : ""}
         </header>
 
         <section>
@@ -80,9 +78,20 @@ const DocumentGenerators = (() => {
   }
 
   // =========================
-  // TABULATION SHEET (MAIN)
+  // SAFE MARK FETCH (IMPORTANT FIX)
   // =========================
-  function generateTabulationSheet(students, options = {}) {
+  function getMarksForStudent(student, allMarks, exam) {
+
+    return allMarks.find(m =>
+      m.studentId === student.id &&
+      m.exam === exam
+    ) || {};
+  }
+
+  // =========================
+  // TABULATION SHEET (FIXED)
+  // =========================
+  function generateTabulationSheet(students, allMarks, options = {}) {
 
     const header = `
       <tr>
@@ -101,20 +110,21 @@ const DocumentGenerators = (() => {
 
     const rows = students.map(student => {
 
-      const result = calculateResult(student, options.passMark);
+      const data = {
+        ...student,
+        ...getMarksForStudent(student, allMarks, options.examName)
+      };
 
-      const subjectCells = SUBJECTS.map(s => {
-        return `<td>${student[s] || 0}</td>`;
-      }).join('');
+      const result = calculateResult(data, options.passMark);
 
       return `
         <tr>
-          <td>${student.id || "-"}</td>
-          <td>${student.name || "-"}</td>
-          <td>${student.className || "-"}</td>
-          <td>${student.roll || "-"}</td>
+          <td>${student.id}</td>
+          <td>${student.name}</td>
+          <td>${student.className}</td>
+          <td>${student.roll}</td>
 
-          ${subjectCells}
+          ${SUBJECTS.map(s => `<td>${data[s] || 0}</td>`).join('')}
 
           <td>${result.total}</td>
           <td>${result.gpa}</td>
@@ -125,21 +135,18 @@ const DocumentGenerators = (() => {
 
     return shell("ট্যাবুলেশন শিট", "doc-tabulation", `
       <p>
-        <strong>পরীক্ষা:</strong> ${options.examName || "-"} |
-        <strong>শিক্ষাবর্ষ:</strong> ${options.academicYear || "-"}
+        <strong>পরীক্ষা:</strong> ${options.examName || "-"}
       </p>
 
-      <table border="1" cellspacing="0" cellpadding="8">
+      <table border="1" cellpadding="6">
         <thead>${header}</thead>
-        <tbody>
-          ${rows || `<tr><td colspan="${SUBJECTS.length + 4}">কোনো ডাটা পাওয়া যায়নি</td></tr>`}
-        </tbody>
+        <tbody>${rows}</tbody>
       </table>
     `, options);
   }
 
   // =========================
-  // MARKSHEET
+  // MARKSHEET (FIXED)
   // =========================
   function generateMarksheet(student, options = {}) {
 
@@ -157,11 +164,11 @@ const DocumentGenerators = (() => {
       <p><strong>নাম:</strong> ${student.name}</p>
       <p><strong>রোল:</strong> ${student.roll}</p>
 
-      <table border="1" cellspacing="0" cellpadding="8">
+      <table border="1" cellpadding="6">
         <tr>
           <th>বিষয়</th>
           <th>নম্বর</th>
-          <th>গ্রেড পয়েন্ট</th>
+          <th>গ্রেড</th>
         </tr>
         ${rows}
       </table>
