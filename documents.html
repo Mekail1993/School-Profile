@@ -14,11 +14,16 @@
 <p>ডকুমেন্ট সেন্টার</p>
 </header>
 
+<!-- ================= MENU (GLOBAL CSS CONTROLLED) ================= -->
 <nav class="menu-bar">
 <a href="index.html">ড্যাশবোর্ড</a>
 <a href="school-profile.html">স্কুল প্রোফাইল</a>
+<a href="teachers.html">শিক্ষক</a>
 <a href="students.html">শিক্ষার্থী এন্ট্রি</a>
 <a href="marks.html">নম্বর এন্ট্রি</a>
+<a href="class-routine.html">ক্লাস রুটিন</a>
+<a href="leave-management.html">ছুটি ব্যবস্থাপনা</a>
+<a href="official-pad.html">অফিসিয়াল প্যাড</a>
 <a href="documents.html">ডকুমেন্টস</a>
 </nav>
 
@@ -28,27 +33,33 @@
 
 <h2>ডকুমেন্ট সেন্টার</h2>
 
+<!-- ================= CONTROLS ================= -->
 <div class="grid">
 
-<label>স্কুলের নাম
+<label>
+স্কুলের নাম
 <input id="optSchoolName" value="বাংলাদেশ প্রাথমিক বিদ্যালয়">
 </label>
 
-<label>পরীক্ষা
+<label>
+পরীক্ষা
 <select id="optExamName"></select>
 </label>
 
-<label>শিক্ষার্থী
+<label>
+শিক্ষার্থী
 <select id="studentSelector"></select>
 </label>
 
 </div>
 
+<!-- ================= ACTION BUTTONS ================= -->
 <div class="doc-buttons">
 <button data-doc="tabulation">ট্যাবুলেশন শিট</button>
 <button data-doc="marksheet">মার্কশিট</button>
 </div>
 
+<!-- ================= OUTPUT ================= -->
 <article id="documentOutput" class="output"></article>
 
 </section>
@@ -56,22 +67,16 @@
 </main>
 
 <script>
-// =========================
-// LOAD DATA
-// =========================
+// ================= DATA LOAD =================
 const students = JSON.parse(localStorage.getItem("students")) || [];
 const marks = JSON.parse(localStorage.getItem("marks")) || [];
 
-// =========================
-// DOM
-// =========================
+// ================= DOM =================
 const studentSelector = document.getElementById("studentSelector");
 const examSelect = document.getElementById("optExamName");
 const output = document.getElementById("documentOutput");
 
-// =========================
-// SUBJECT SYSTEM
-// =========================
+// ================= SUBJECT SYSTEM (FINAL STANDARD) =================
 const SUBJECTS = ["bangla","english","math","science","bgs","religion"];
 
 const SUBJECT_LABELS = {
@@ -83,9 +88,7 @@ const SUBJECT_LABELS = {
   religion: "ধর্ম"
 };
 
-// =========================
-// LOAD STUDENTS
-// =========================
+// ================= LOAD STUDENTS =================
 students.forEach(s => {
   const opt = document.createElement("option");
   opt.value = s.id;
@@ -93,19 +96,17 @@ students.forEach(s => {
   studentSelector.appendChild(opt);
 });
 
-// =========================
-// LOAD EXAMS
-// =========================
-[...new Set(marks.map(m => m.exam))].forEach(e => {
-  const opt = document.createElement("option");
-  opt.value = e;
-  opt.textContent = e;
-  examSelect.appendChild(opt);
-});
+// ================= LOAD EXAMS =================
+const examList = [...new Set(marks.map(m => m.exam))];
 
-// =========================
-// HELPERS
-// =========================
+examSelect.innerHTML = `
+<option value="প্রথম সাময়িক">প্রথম সাময়িক</option>
+<option value="অর্ধবার্ষিক">অর্ধবার্ষিক</option>
+<option value="বার্ষিক">বার্ষিক</option>
+${examList.map(e => `<option value="${e}">${e}</option>`).join('')}
+`;
+
+// ================= HELPERS =================
 function getStudent(){
   return students.find(s => s.id == studentSelector.value);
 }
@@ -114,9 +115,7 @@ function getMarks(studentId, exam){
   return marks.find(m => m.studentId == studentId && m.exam == exam) || {};
 }
 
-// =========================
-// RESULT CALC
-// =========================
+// ================= GPA SYSTEM =================
 function gradePoint(mark){
   if(mark >= 80) return 5;
   if(mark >= 70) return 4;
@@ -139,9 +138,7 @@ function calculate(data){
   return { total, gpa, status };
 }
 
-// =========================
-// DOCUMENT RENDER
-// =========================
+// ================= EVENT =================
 document.querySelectorAll("[data-doc]").forEach(btn => {
 
   btn.addEventListener("click", () => {
@@ -155,7 +152,10 @@ document.querySelectorAll("[data-doc]").forEach(btn => {
       return;
     }
 
-    const data = { ...student, ...getMarks(student.id, exam) };
+    const data = {
+      ...student,
+      ...getMarks(student.id, exam)
+    };
 
     let html = "";
 
@@ -187,13 +187,13 @@ document.querySelectorAll("[data-doc]").forEach(btn => {
         <div class="doc-sheet">
           <h3>ট্যাবুলেশন শিট</h3>
 
-          <table border="1" cellpadding="6">
+          <table>
             <tr>
               <th>ID</th>
               <th>নাম</th>
               <th>শ্রেণি</th>
 
-              ${SUBJECTS.map(s=>`<th>${SUBJECT_LABELS[s]}</th>`).join('')}
+              ${SUBJECTS.map(s => `<th>${SUBJECT_LABELS[s]}</th>`).join('')}
 
               <th>মোট</th>
               <th>GPA</th>
@@ -215,10 +215,10 @@ document.querySelectorAll("[data-doc]").forEach(btn => {
         <div class="doc-sheet">
           <h3>মার্কশিট</h3>
 
-          <p>নাম: ${data.name}</p>
-          <p>শ্রেণি: ${data.className}</p>
+          <p><strong>নাম:</strong> ${data.name}</p>
+          <p><strong>শ্রেণি:</strong> ${data.className}</p>
 
-          <table border="1" cellpadding="6">
+          <table>
             <tr>
               <th>বিষয়</th>
               <th>নম্বর</th>
@@ -234,9 +234,9 @@ document.querySelectorAll("[data-doc]").forEach(btn => {
             `).join('')}
           </table>
 
-          <p>মোট: ${res.total}</p>
-          <p>GPA: ${res.gpa}</p>
-          <p>ফলাফল: ${res.status}</p>
+          <p><strong>মোট:</strong> ${res.total}</p>
+          <p><strong>GPA:</strong> ${res.gpa}</p>
+          <p><strong>ফলাফল:</strong> ${res.status}</p>
         </div>
       `;
     }
