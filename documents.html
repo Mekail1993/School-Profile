@@ -1,52 +1,252 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ডকুমেন্টস</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ডকুমেন্টস</title>
+<link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-<header><h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1><p>ডকুমেন্ট সেন্টার</p></header>
-<nav class="menu-bar"><a href="index.html">ড্যাশবোর্ড</a><a href="school-profile.html">স্কুল প্রোফাইল</a><a href="teachers.html">শিক্ষক</a><a href="configure.html">সেটিংস</a><a href="students.html">শিক্ষার্থী এন্ট্রি</a><a href="marks.html">নম্বর এন্ট্রি</a><a href="class-routine.html">ক্লাস রুটিন</a><a href="leave-management.html">ছুটি ব্যবস্থাপনা</a><a href="official-pad.html">অফিসিয়াল প্যাড</a><a href="documents.html">ডকুমেন্টস</a></nav>
+
+<header>
+<h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1>
+<p>ডকুমেন্ট সেন্টার</p>
+</header>
+
+<nav class="menu-bar">
+<a href="index.html">ড্যাশবোর্ড</a>
+<a href="school-profile.html">স্কুল প্রোফাইল</a>
+<a href="students.html">শিক্ষার্থী এন্ট্রি</a>
+<a href="marks.html">নম্বর এন্ট্রি</a>
+<a href="documents.html">ডকুমেন্টস</a>
+</nav>
+
 <main>
-  <section class="card docs">
-    <h2>ডকুমেন্ট সেন্টার</h2>
-    <div class="grid">
-      <label>স্কুলের নাম <input id="optSchoolName" value="বাংলাদেশ প্রাথমিক বিদ্যালয়" /></label>
-      <label>পরীক্ষার নাম <select id="optExamName"></select></label>
-      <label>পরীক্ষা কেন্দ্র <input id="optCenterName" value="মেইন ক্যাম্পাস হল" /></label>
-      <label>ফুটার নোট <input id="optFooterNote" value="স্কুল ম্যানেজমেন্ট পোর্টাল দ্বারা প্রস্তুত" /></label>
-    </div>
-    <div class="grid">
-      <label>অ্যাডমিট নির্দেশনা <input id="optAdmitInstructions" value="অ্যাডমিট কার্ড সঙ্গে আনতে হবে।" /></label>
-      <label>সিট প্ল্যান নির্দেশনা <input id="optSeatInstructions" value="৩০ মিনিট আগে কেন্দ্রে উপস্থিত হতে হবে।" /></label>
-      <label>প্রগ্রেস রিপোর্ট মন্তব্য <input id="optProgressComment" value="আরও ভালো করার চেষ্টা করো।" /></label>
-      <label>মার্কশিট মন্তব্য <input id="optMarksheetComment" value="পরবর্তী শ্রেণিতে উত্তীর্ণ।" /></label>
-      <label>অনুমোদিত শিক্ষক<select id="optAuthorizedTeacher"></select></label>
-      <label>শিক্ষার্থী নির্বাচন<select id="studentSelector"></select></label>
-    </div>
 
-    <h3>ডকুমেন্ট টগলস</h3>
-    <div class="grid">
-      <label class="checkbox"><input type="checkbox" id="toggleSchoolInfo" checked />স্কুল তথ্য দেখান</label>
-      <label class="checkbox"><input type="checkbox" id="toggleGuardian" checked />অভিভাবক তথ্য দেখান</label>
-      <label class="checkbox"><input type="checkbox" id="toggleInstructions" checked />নির্দেশনা দেখান</label>
-      <label class="checkbox"><input type="checkbox" id="toggleTeacherSign" checked />শিক্ষক/স্বাক্ষর অংশ দেখান</label>
-      <label class="checkbox"><input type="checkbox" id="toggleFooter" checked />ফুটার দেখান</label>
-    </div>
+<section class="card docs">
 
-    <div class="doc-buttons">
-      <button data-doc="admit">অ্যাডমিট কার্ড প্রিভিউ</button><button data-doc="seat">সিট প্ল্যান প্রিভিউ</button><button data-doc="progress">প্রগ্রেস রিপোর্ট প্রিভিউ</button><button data-doc="tabulation">ট্যাবুলেশন শিট প্রিভিউ</button><button data-doc="marksheet">মার্কশিট প্রিভিউ</button>
-    </div>
-    <div class="doc-buttons">
-      <button data-download="admit">অ্যাডমিট PDF ডাউনলোড</button><button data-download="seat">সিট প্ল্যান PDF ডাউনলোড</button><button data-download="progress">প্রগ্রেস PDF ডাউনলোড</button><button data-download="tabulation">ট্যাবুলেশন PDF ডাউনলোড</button><button data-download="marksheet">মার্কশিট PDF ডাউনলোড</button><button id="batchDownloadBtn">সব PDF একসাথে ডাউনলোড</button>
-    </div>
-    <article id="documentOutput" class="output"></article><button id="printBtn">বর্তমান ডকুমেন্ট প্রিন্ট</button>
-  </section>
+<h2>ডকুমেন্ট সেন্টার</h2>
+
+<div class="grid">
+
+<label>স্কুলের নাম
+<input id="optSchoolName" value="বাংলাদেশ প্রাথমিক বিদ্যালয়">
+</label>
+
+<label>পরীক্ষা
+<select id="optExamName"></select>
+</label>
+
+<label>শিক্ষার্থী
+<select id="studentSelector"></select>
+</label>
+
+</div>
+
+<div class="doc-buttons">
+<button data-doc="tabulation">ট্যাবুলেশন শিট</button>
+<button data-doc="marksheet">মার্কশিট</button>
+</div>
+
+<article id="documentOutput" class="output"></article>
+
+</section>
+
 </main>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="documentGenerators.js"></script>
-<script src="app.js"></script>
+
+<script>
+// =========================
+// LOAD DATA
+// =========================
+const students = JSON.parse(localStorage.getItem("students")) || [];
+const marks = JSON.parse(localStorage.getItem("marks")) || [];
+
+// =========================
+// DOM
+// =========================
+const studentSelector = document.getElementById("studentSelector");
+const examSelect = document.getElementById("optExamName");
+const output = document.getElementById("documentOutput");
+
+// =========================
+// SUBJECT SYSTEM
+// =========================
+const SUBJECTS = ["bangla","english","math","science","bgs","religion"];
+
+const SUBJECT_LABELS = {
+  bangla: "বাংলা",
+  english: "ইংরেজি",
+  math: "গণিত",
+  science: "বিজ্ঞান",
+  bgs: "বাওবি",
+  religion: "ধর্ম"
+};
+
+// =========================
+// LOAD STUDENTS
+// =========================
+students.forEach(s => {
+  const opt = document.createElement("option");
+  opt.value = s.id;
+  opt.textContent = `${s.name} (${s.className})`;
+  studentSelector.appendChild(opt);
+});
+
+// =========================
+// LOAD EXAMS
+// =========================
+[...new Set(marks.map(m => m.exam))].forEach(e => {
+  const opt = document.createElement("option");
+  opt.value = e;
+  opt.textContent = e;
+  examSelect.appendChild(opt);
+});
+
+// =========================
+// HELPERS
+// =========================
+function getStudent(){
+  return students.find(s => s.id == studentSelector.value);
+}
+
+function getMarks(studentId, exam){
+  return marks.find(m => m.studentId == studentId && m.exam == exam) || {};
+}
+
+// =========================
+// RESULT CALC
+// =========================
+function gradePoint(mark){
+  if(mark >= 80) return 5;
+  if(mark >= 70) return 4;
+  if(mark >= 60) return 3.5;
+  if(mark >= 50) return 3;
+  if(mark >= 40) return 2;
+  if(mark >= 33) return 1;
+  return 0;
+}
+
+function calculate(data){
+  const values = SUBJECTS.map(s => Number(data[s] || 0));
+
+  const total = values.reduce((a,b)=>a+b,0);
+
+  const gpa = (values.reduce((sum,m)=>sum+gradePoint(m),0)/SUBJECTS.length).toFixed(2);
+
+  const status = values.every(m => m >= 33) ? "Pass" : "Fail";
+
+  return { total, gpa, status };
+}
+
+// =========================
+// DOCUMENT RENDER
+// =========================
+document.querySelectorAll("[data-doc]").forEach(btn => {
+
+  btn.addEventListener("click", () => {
+
+    const type = btn.dataset.doc;
+    const student = getStudent();
+    const exam = examSelect.value;
+
+    if(!student){
+      alert("শিক্ষার্থী নির্বাচন করুন");
+      return;
+    }
+
+    const data = { ...student, ...getMarks(student.id, exam) };
+
+    let html = "";
+
+    // ================= TABULATION =================
+    if(type === "tabulation"){
+
+      const rows = marks
+        .filter(m => m.exam === exam)
+        .map(m => {
+
+          const res = calculate(m);
+
+          return `
+            <tr>
+              <td>${m.studentId}</td>
+              <td>${m.name}</td>
+              <td>${m.className}</td>
+
+              ${SUBJECTS.map(s => `<td>${m[s] || 0}</td>`).join('')}
+
+              <td>${res.total}</td>
+              <td>${res.gpa}</td>
+              <td>${res.status}</td>
+            </tr>
+          `;
+        }).join('');
+
+      html = `
+        <div class="doc-sheet">
+          <h3>ট্যাবুলেশন শিট</h3>
+
+          <table border="1" cellpadding="6">
+            <tr>
+              <th>ID</th>
+              <th>নাম</th>
+              <th>শ্রেণি</th>
+
+              ${SUBJECTS.map(s=>`<th>${SUBJECT_LABELS[s]}</th>`).join('')}
+
+              <th>মোট</th>
+              <th>GPA</th>
+              <th>ফলাফল</th>
+            </tr>
+
+            ${rows}
+          </table>
+        </div>
+      `;
+    }
+
+    // ================= MARKSHEET =================
+    if(type === "marksheet"){
+
+      const res = calculate(data);
+
+      html = `
+        <div class="doc-sheet">
+          <h3>মার্কশিট</h3>
+
+          <p>নাম: ${data.name}</p>
+          <p>শ্রেণি: ${data.className}</p>
+
+          <table border="1" cellpadding="6">
+            <tr>
+              <th>বিষয়</th>
+              <th>নম্বর</th>
+              <th>গ্রেড</th>
+            </tr>
+
+            ${SUBJECTS.map(s => `
+              <tr>
+                <td>${SUBJECT_LABELS[s]}</td>
+                <td>${data[s] || 0}</td>
+                <td>${gradePoint(data[s] || 0)}</td>
+              </tr>
+            `).join('')}
+          </table>
+
+          <p>মোট: ${res.total}</p>
+          <p>GPA: ${res.gpa}</p>
+          <p>ফলাফল: ${res.status}</p>
+        </div>
+      `;
+    }
+
+    output.innerHTML = html;
+
+  });
+
+});
+</script>
+
 </body>
 </html>
