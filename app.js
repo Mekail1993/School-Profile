@@ -8,6 +8,8 @@ const getTeachers = () => JSON.parse(localStorage.getItem('teachers') || '[]');
 const setTeachers = (teachers) => localStorage.setItem('teachers', JSON.stringify(teachers));
 const getConfig = () => JSON.parse(localStorage.getItem('config') || '{}');
 const setConfig = (config) => localStorage.setItem('config', JSON.stringify(config));
+const getRoutine = () => JSON.parse(localStorage.getItem('routine') || '[]');
+const setRoutine = (routine) => localStorage.setItem('routine', JSON.stringify(routine));
 
 const el = (id) => document.getElementById(id);
 
@@ -145,6 +147,17 @@ function generateDocumentHtml(type, student) {
   return generators[type](student, options);
 }
 
+function renderRoutineTable() {
+  const body = el('routineTableBody');
+  if (!body) return;
+  body.innerHTML = '';
+  getRoutine().forEach((item, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${item.className}</td><td>${item.day}</td><td>${item.period}</td><td>${item.subject}</td><td>${item.time}</td><td><button type="button" class="danger" data-routine-delete="${index}">মুছুন</button></td>`;
+    body.appendChild(row);
+  });
+}
+
 function initForms() {
   el('studentForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -210,6 +223,23 @@ function initForms() {
     setConfig(config);
     renderDashboard();
     alert('সেটিংস সংরক্ষিত হয়েছে।');
+  });
+
+  el('routineForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const item = Object.fromEntries(new FormData(e.target).entries());
+    setRoutine([...getRoutine(), item]);
+    e.target.reset();
+    renderRoutineTable();
+    alert('ক্লাস রুটিন সংরক্ষিত হয়েছে।');
+  });
+
+  el('routineTableBody')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-routine-delete]');
+    if (!button) return;
+    const index = Number(button.dataset.routineDelete);
+    setRoutine(getRoutine().filter((_, i) => i !== index));
+    renderRoutineTable();
   });
 }
 
@@ -300,3 +330,4 @@ renderDashboard();
 initForms();
 initDashboardTransfer();
 initDocuments();
+renderRoutineTable();
