@@ -13,6 +13,26 @@ const setRoutine = (routine) => localStorage.setItem('routine', JSON.stringify(r
 
 const el = (id) => document.getElementById(id);
 
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 250);
+  }, 2200);
+}
+
+function setActiveMenu() {
+  const current = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.menu-bar a').forEach((link) => {
+    const href = link.getAttribute('href');
+    if (href === current) link.classList.add('active');
+  });
+}
+
 function hasMarks(student) {
   return SUBJECTS.every((subject) => student[subject] !== undefined && student[subject] !== '');
 }
@@ -81,7 +101,7 @@ function renderTeachers() {
     table.innerHTML = '';
     teachers.forEach((teacher, index) => {
       const row = document.createElement('tr');
-      row.innerHTML = `<td>${teacher.name}</td><td>${teacher.designation || '-'}</td><td>${teacher.mobile || '-'}</td><td><button type="button" class="danger" data-teacher-delete="${index}">Delete</button></td>`;
+      row.innerHTML = `<td>${teacher.name}</td><td>${teacher.designation || '-'}</td><td>${teacher.mobile || '-'}</td><td><button type="button" class="danger" data-teacher-delete="${index}">মুছুন</button></td>`;
       table.appendChild(row);
     });
   }
@@ -162,13 +182,14 @@ function initForms() {
   el('studentForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const student = Object.fromEntries(new FormData(e.target).entries());
-    if (!student.id || !student.name || !student.roll) return alert('ইউজার আইডি, নাম এবং রোল নম্বর বাধ্যতামূলক।');
-    if (getStudents().some((s) => s.id === student.id)) return alert('এই ইউজার আইডি ইতোমধ্যে রয়েছে।');
+    if (!student.id || !student.name || !student.roll) return showToast('ইউজার আইডি, নাম এবং রোল নম্বর বাধ্যতামূলক।', 'error');
+    if (getStudents().some((s) => s.id === student.id)) return showToast('এই ইউজার আইডি ইতোমধ্যে রয়েছে।', 'error');
     setStudents([...getStudents(), student]);
     e.target.reset();
     populateStudentSelectors();
     refreshStudentTable();
     renderDashboard();
+    showToast('শিক্ষার্থী সফলভাবে সংরক্ষণ করা হয়েছে।', 'success');
   });
 
   el('marksForm')?.addEventListener('submit', (e) => {
@@ -176,44 +197,50 @@ function initForms() {
     const { id, ...marks } = Object.fromEntries(new FormData(e.target).entries());
     const students = getStudents();
     const student = students.find((s) => s.id === id);
-    if (!student) return alert('সঠিক শিক্ষার্থী নির্বাচন করুন।');
+    if (!student) return showToast('সঠিক শিক্ষার্থী নির্বাচন করুন।', 'error');
     SUBJECTS.forEach((subject) => { student[subject] = marks[subject]; });
     setStudents(students);
     e.target.reset();
     refreshStudentTable();
     renderDashboard();
+    showToast('নম্বর সফলভাবে সংরক্ষণ করা হয়েছে।', 'success');
   });
 
   el('deleteBtn')?.addEventListener('click', () => {
     const student = getSelectedStudent();
-    if (!student) return alert('প্রথমে শিক্ষার্থী নির্বাচন করুন।');
+    if (!student) return showToast('প্রথমে শিক্ষার্থী নির্বাচন করুন।', 'error');
+    if (!confirm(`আপনি কি ${student.name} কে মুছে ফেলতে চান?`)) return;
     setStudents(getStudents().filter((s) => s.id !== student.id));
     populateStudentSelectors();
     refreshStudentTable();
     renderDashboard();
+    showToast('শিক্ষার্থী মুছে ফেলা হয়েছে।', 'success');
   });
 
   el('schoolProfileForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     setSchoolProfile(Object.fromEntries(new FormData(e.target).entries()));
-    alert('স্কুল প্রোফাইল সংরক্ষিত হয়েছে।');
+    showToast('স্কুল প্রোফাইল সংরক্ষিত হয়েছে।', 'success');
   });
 
   el('teacherForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const teacher = Object.fromEntries(new FormData(e.target).entries());
-    if (!teacher.name) return alert('শিক্ষকের নাম বাধ্যতামূলক।');
+    if (!teacher.name) return showToast('শিক্ষকের নাম বাধ্যতামূলক।', 'error');
     setTeachers([...getTeachers(), teacher]);
     e.target.reset();
     renderTeachers();
+    showToast('শিক্ষক যোগ করা হয়েছে।', 'success');
   });
 
   el('teacherTableBody')?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-teacher-delete]');
     if (!button) return;
     const index = Number(button.dataset.teacherDelete);
+    if (!confirm('আপনি কি এই শিক্ষককে মুছে ফেলতে চান?')) return;
     setTeachers(getTeachers().filter((_, i) => i !== index));
     renderTeachers();
+    showToast('শিক্ষক মুছে ফেলা হয়েছে।', 'success');
   });
 
   el('configForm')?.addEventListener('submit', (e) => {
@@ -222,7 +249,7 @@ function initForms() {
     config.showLogo = el('cfgShowLogo')?.checked;
     setConfig(config);
     renderDashboard();
-    alert('সেটিংস সংরক্ষিত হয়েছে।');
+    showToast('সেটিংস সংরক্ষিত হয়েছে।', 'success');
   });
 
   el('routineForm')?.addEventListener('submit', (e) => {
@@ -231,15 +258,17 @@ function initForms() {
     setRoutine([...getRoutine(), item]);
     e.target.reset();
     renderRoutineTable();
-    alert('ক্লাস রুটিন সংরক্ষিত হয়েছে।');
+    showToast('ক্লাস রুটিন সংরক্ষিত হয়েছে।', 'success');
   });
 
   el('routineTableBody')?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-routine-delete]');
     if (!button) return;
     const index = Number(button.dataset.routineDelete);
+    if (!confirm('আপনি কি এই রুটিন এন্ট্রি মুছে ফেলতে চান?')) return;
     setRoutine(getRoutine().filter((_, i) => i !== index));
     renderRoutineTable();
+    showToast('রুটিন এন্ট্রি মুছে ফেলা হয়েছে।', 'success');
   });
 }
 
@@ -264,9 +293,9 @@ function initDashboardTransfer() {
       populateStudentSelectors();
       refreshStudentTable();
       renderDashboard();
-      alert('শিক্ষার্থী তালিকা সফলভাবে ইমপোর্ট হয়েছে।');
+      showToast('শিক্ষার্থী তালিকা সফলভাবে ইমপোর্ট হয়েছে।', 'success');
     } catch (error) {
-      alert(`ইমপোর্ট ব্যর্থ: ${error.message}`);
+      showToast(`ইমপোর্ট ব্যর্থ: ${error.message}`, 'error');
     }
     event.target.value = '';
   });
@@ -277,8 +306,8 @@ function initDocuments() {
 
   const handler = (type, mode) => {
     const student = type === 'tabulation' ? null : getSelectedStudent();
-    if (type !== 'tabulation' && !student) return alert('প্রথমে শিক্ষার্থী নির্বাচন করুন।');
-    if ((type === 'progress' || type === 'marksheet') && !hasMarks(student)) return alert('এই শিক্ষার্থীর নম্বর এন্ট্রি আগে সম্পন্ন করুন।');
+    if (type !== 'tabulation' && !student) return showToast('প্রথমে শিক্ষার্থী নির্বাচন করুন।', 'error');
+    if ((type === 'progress' || type === 'marksheet') && !hasMarks(student)) return showToast('এই শিক্ষার্থীর নম্বর এন্ট্রি আগে সম্পন্ন করুন।', 'error');
     const html = generateDocumentHtml(type, student);
     if (mode === 'preview') el('documentOutput').innerHTML = html;
     else htmlToPdf(`${type}-${student ? student.id : 'all'}.pdf`, html);
@@ -293,7 +322,7 @@ function initDocuments() {
 
   el('batchDownloadBtn')?.addEventListener('click', () => {
     const student = getSelectedStudent();
-    if (!student) return alert('প্রথমে শিক্ষার্থী নির্বাচন করুন।');
+    if (!student) return showToast('প্রথমে শিক্ষার্থী নির্বাচন করুন।', 'error');
     const docs = ['admit', 'seat'];
     if (hasMarks(student)) docs.push('progress', 'marksheet');
     if (getStudents().some(hasMarks)) docs.push('tabulation');
@@ -301,7 +330,7 @@ function initDocuments() {
   });
 
   el('printBtn')?.addEventListener('click', () => {
-    if (!el('documentOutput').textContent.trim()) return alert('প্রথমে ডকুমেন্ট প্রিভিউ তৈরি করুন।');
+    if (!el('documentOutput').textContent.trim()) return showToast('প্রথমে ডকুমেন্ট প্রিভিউ তৈরি করুন।', 'error');
     window.print();
   });
 }
@@ -323,6 +352,7 @@ function loadSettings() {
 }
 
 loadSettings();
+setActiveMenu();
 renderTeachers();
 populateStudentSelectors();
 refreshStudentTable();
