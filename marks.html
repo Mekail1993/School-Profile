@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>নম্বর এন্ট্রি</title>
-<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -30,26 +30,9 @@
 <main>
 
 <section class="card">
-<h2>নম্বর এন্ট্রি</h2>
+<h2>শ্রেণিভিত্তিক নম্বর এন্ট্রি</h2>
 
 <div class="grid">
-
-<label>
-শিক্ষাবর্ষ
-<select id="yearSelect">
-<option>২০২৬</option>
-<option>২০২৭</option>
-</select>
-</label>
-
-<label>
-পরীক্ষা
-<select id="examSelect">
-<option>প্রথম সাময়িক</option>
-<option>অর্ধবার্ষিক</option>
-<option>বার্ষিক</option>
-</select>
-</label>
 
 <label>
 শ্রেণি নির্বাচন করুন
@@ -64,68 +47,41 @@
 </select>
 </label>
 
+<label>
+পরীক্ষা
+<select id="examName">
+<option>প্রথম সাময়িক</option>
+<option>অর্ধবার্ষিক</option>
+<option>বার্ষিক</option>
+</select>
+</label>
+
 </div>
+
 </section>
 
-<section class="card" id="studentListCard" style="display:none;">
-<h2>শিক্ষার্থী তালিকা</h2>
-<div id="studentList"></div>
-</section>
-
-<section class="card" id="marksCard" style="display:none;">
-<h2>বিষয়ভিত্তিক নম্বর এন্ট্রি</h2>
+<section class="card" id="marksSection" style="display:none;">
+<h2 id="classTitle">নম্বর এন্ট্রি</h2>
 
 <form id="marksForm">
 
-<div class="grid">
-<label>
-শিক্ষার্থীর নাম
-<input type="text" id="studentName" readonly>
-</label>
-
-<label>
-রোল নম্বর
-<input type="text" id="studentRoll" readonly>
-</label>
-
-<label>
-শ্রেণি
-<input type="text" id="studentClass" readonly>
-</label>
-</div>
-
-<div class="grid">
-<label>বাংলা<input type="number" min="0" max="100"></label>
-<label>ইংরেজি<input type="number" min="0" max="100"></label>
-<label>গণিত<input type="number" min="0" max="100"></label>
-<label>বিজ্ঞান<input type="number" min="0" max="100"></label>
-<label>বাংলাদেশ ও বিশ্বপরিচয়<input type="number" min="0" max="100"></label>
-<label>ধর্ম<input type="number" min="0" max="100"></label>
-</div>
+<div id="studentMarksArea"></div>
 
 <div class="doc-buttons">
-<button type="submit">নম্বর সংরক্ষণ</button>
+<button type="submit">সব নম্বর সংরক্ষণ</button>
 </div>
 
 </form>
+
 </section>
 
 </main>
 
 <script>
 const classSelect = document.getElementById("classSelect");
-const studentListCard = document.getElementById("studentListCard");
-const studentList = document.getElementById("studentList");
-const marksCard = document.getElementById("marksCard");
-
-/*
-শিক্ষার্থী ডাটা students.html থেকে localStorage এ থাকবে
-উদাহরণ:
-[
- {name:"রিমন", roll:"1", className:"১ম শ্রেণি"},
- {name:"মিম", roll:"2", className:"১ম শ্রেণি"}
-]
-*/
+const marksSection = document.getElementById("marksSection");
+const studentMarksArea = document.getElementById("studentMarksArea");
+const classTitle = document.getElementById("classTitle");
 
 function getStudents(){
 return JSON.parse(localStorage.getItem("students")) || [];
@@ -134,60 +90,97 @@ return JSON.parse(localStorage.getItem("students")) || [];
 classSelect.addEventListener("change", function(){
 
 const selectedClass = this.value;
-const allStudents = getStudents();
-
-studentList.innerHTML = "";
-marksCard.style.display = "none";
+studentMarksArea.innerHTML = "";
 
 if(selectedClass === ""){
-studentListCard.style.display = "none";
+marksSection.style.display = "none";
 return;
 }
 
-const filtered = allStudents.filter(student => student.className === selectedClass);
+const allStudents = getStudents();
 
-studentListCard.style.display = "block";
+const classStudents = allStudents.filter(student => student.className === selectedClass);
 
-if(filtered.length === 0){
-studentList.innerHTML = "<p>এই শ্রেণিতে কোনো শিক্ষার্থী পাওয়া যায়নি</p>";
+classTitle.innerText = selectedClass + " - নম্বর এন্ট্রি";
+
+if(classStudents.length === 0){
+studentMarksArea.innerHTML = "<p>এই শ্রেণিতে কোনো শিক্ষার্থী পাওয়া যায়নি</p>";
+marksSection.style.display = "block";
 return;
 }
 
-filtered.forEach(student => {
+classStudents.forEach(student => {
 
-const btn = document.createElement("button");
-btn.type = "button";
-btn.className = "student-btn";
-btn.style.width = "100%";
-btn.style.marginBottom = "10px";
+studentMarksArea.innerHTML += `
+<div class="card" style="margin-bottom:15px;">
+<h3>${student.roll} - ${student.name}</h3>
 
-btn.textContent =
-"রোল " + student.roll + " - " + student.name;
+<div class="grid">
 
-btn.onclick = function(){
+<label>বাংলা
+<input type="number" min="0" max="100" name="bangla_${student.id}">
+</label>
 
-document.getElementById("studentName").value = student.name;
-document.getElementById("studentRoll").value = student.roll;
-document.getElementById("studentClass").value = student.className;
+<label>ইংরেজি
+<input type="number" min="0" max="100" name="english_${student.id}">
+</label>
 
-marksCard.style.display = "block";
+<label>গণিত
+<input type="number" min="0" max="100" name="math_${student.id}">
+</label>
 
-window.scrollTo({
-top: marksCard.offsetTop,
-behavior:"smooth"
+<label>বিজ্ঞান
+<input type="number" min="0" max="100" name="science_${student.id}">
+</label>
+
+<label>ধর্ম
+<input type="number" min="0" max="100" name="religion_${student.id}">
+</label>
+
+</div>
+</div>
+`;
+
 });
 
-};
-
-studentList.appendChild(btn);
-
-});
+marksSection.style.display = "block";
 
 });
 
 document.getElementById("marksForm").addEventListener("submit", function(e){
 e.preventDefault();
+
+const selectedClass = classSelect.value;
+const examName = document.getElementById("examName").value;
+
+const students = getStudents();
+const classStudents = students.filter(student => student.className === selectedClass);
+
+let savedMarks = JSON.parse(localStorage.getItem("marks")) || [];
+
+classStudents.forEach(student => {
+
+const markData = {
+studentId: student.id,
+name: student.name,
+roll: student.roll,
+className: selectedClass,
+exam: examName,
+bangla: document.querySelector(`[name="bangla_${student.id}"]`).value || 0,
+english: document.querySelector(`[name="english_${student.id}"]`).value || 0,
+math: document.querySelector(`[name="math_${student.id}"]`).value || 0,
+science: document.querySelector(`[name="science_${student.id}"]`).value || 0,
+religion: document.querySelector(`[name="religion_${student.id}"]`).value || 0
+};
+
+savedMarks.push(markData);
+
+});
+
+localStorage.setItem("marks", JSON.stringify(savedMarks));
+
 alert("নম্বর সফলভাবে সংরক্ষণ করা হয়েছে");
+
 });
 </script>
 
