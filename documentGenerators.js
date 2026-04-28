@@ -1,9 +1,29 @@
-function generateTabulationSheet(students, options) {
+const DocumentGenerators = (() => {
 
-  const SUBJECTS = ['bangla', 'english', 'math', 'science', 'religion'];
+  // =========================
+  // SINGLE SOURCE OF TRUTH
+  // =========================
+  const SUBJECTS = [
+    "bangla",
+    "english",
+    "math",
+    "science",
+    "bgs",
+    "religion"
+  ];
 
-  const LABELS = options.subjectList || ['বাংলা', 'ইংরেজি', 'গণিত', 'বিজ্ঞান', 'ধর্ম'];
+  const SUBJECT_LABELS = {
+    bangla: "বাংলা",
+    english: "ইংরেজি",
+    math: "গণিত",
+    science: "বিজ্ঞান",
+    bgs: "বাওবি",
+    religion: "ধর্ম"
+  };
 
+  // =========================
+  // GRADE SYSTEM
+  // =========================
   function gradePoint(mark) {
     if (mark >= 80) return 5;
     if (mark >= 70) return 4;
@@ -14,7 +34,11 @@ function generateTabulationSheet(students, options) {
     return 0;
   }
 
-  function calculate(student) {
+  // =========================
+  // RESULT CALCULATION
+  // =========================
+  function calculateResult(student, passMark = 33) {
+
     const marks = SUBJECTS.map(s => Number(student[s] || 0));
 
     const total = marks.reduce((a, b) => a + b, 0);
@@ -23,61 +47,138 @@ function generateTabulationSheet(students, options) {
       marks.reduce((sum, m) => sum + gradePoint(m), 0) / SUBJECTS.length
     ).toFixed(2);
 
-    const status = marks.every(m => m >= (options.passMark || 33)) ? 'Pass' : 'Fail';
+    const status = marks.every(m => m >= passMark) ? "Pass" : "Fail";
 
     return { total, gpa, status };
   }
 
-  const header = `
-    <tr>
-      <th>আইডি</th>
-      <th>নাম</th>
-      <th>শ্রেণি</th>
-      <th>রোল</th>
-      ${LABELS.map(l => `<th>${l}</th>`).join('')}
-      <th>মোট</th>
-      <th>GPA</th>
-      <th>ফলাফল</th>
-    </tr>
-  `;
+  // =========================
+  // SHELL WRAPPER
+  // =========================
+  function shell(title, type, body, options = {}) {
 
-  const rows = students.map(student => {
-
-    const result = calculate(student);
-
-    const subjectMarks = SUBJECTS.map(s => {
-      return `<td>${student[s] || 0}</td>`;
-    }).join('');
+    const schoolBlock = options.showSchoolInfo
+      ? `<p>${options.schoolName || ""}</p><p>${options.schoolAddress || ""}</p>`
+      : "";
 
     return `
+      <div class="doc-sheet ${type}">
+        <header>
+          <h3>${title}</h3>
+          ${schoolBlock}
+        </header>
+
+        <section>
+          ${body}
+        </section>
+
+        <footer>
+          ${options.footerNote || ""}
+        </footer>
+      </div>
+    `;
+  }
+
+  // =========================
+  // TABULATION SHEET (MAIN)
+  // =========================
+  function generateTabulationSheet(students, options = {}) {
+
+    const header = `
       <tr>
-        <td>${student.id}</td>
-        <td>${student.name}</td>
-        <td>${student.className || '-'}</td>
-        <td>${student.roll || '-'}</td>
-        ${subjectMarks}
-        <td>${result.total}</td>
-        <td>${result.gpa}</td>
-        <td>${result.status}</td>
+        <th>আইডি</th>
+        <th>নাম</th>
+        <th>শ্রেণি</th>
+        <th>রোল</th>
+
+        ${SUBJECTS.map(s => `<th>${SUBJECT_LABELS[s]}</th>`).join('')}
+
+        <th>মোট</th>
+        <th>GPA</th>
+        <th>ফলাফল</th>
       </tr>
     `;
-  }).join('');
 
-  return `
-    <div class="doc-sheet doc-tabulation">
-      <h3>ট্যাবুলেশন শিট</h3>
+    const rows = students.map(student => {
 
+      const result = calculateResult(student, options.passMark);
+
+      const subjectCells = SUBJECTS.map(s => {
+        return `<td>${student[s] || 0}</td>`;
+      }).join('');
+
+      return `
+        <tr>
+          <td>${student.id || "-"}</td>
+          <td>${student.name || "-"}</td>
+          <td>${student.className || "-"}</td>
+          <td>${student.roll || "-"}</td>
+
+          ${subjectCells}
+
+          <td>${result.total}</td>
+          <td>${result.gpa}</td>
+          <td>${result.status}</td>
+        </tr>
+      `;
+    }).join('');
+
+    return shell("ট্যাবুলেশন শিট", "doc-tabulation", `
       <p>
-        <strong>পরীক্ষা:</strong> ${options.examName || '-'} |
-        <strong>শিক্ষাবর্ষ:</strong> ${options.academicYear || '-'}
+        <strong>পরীক্ষা:</strong> ${options.examName || "-"} |
+        <strong>শিক্ষাবর্ষ:</strong> ${options.academicYear || "-"}
       </p>
 
       <table border="1" cellspacing="0" cellpadding="8">
         <thead>${header}</thead>
         <tbody>
-          ${rows || `<tr><td colspan="8">কোনো ডাটা পাওয়া যায়নি</td></tr>`}
+          ${rows || `<tr><td colspan="${SUBJECTS.length + 4}">কোনো ডাটা পাওয়া যায়নি</td></tr>`}
         </tbody>
       </table>
-    </div>
-  `;
-}
+    `, options);
+  }
+
+  // =========================
+  // MARKSHEET
+  // =========================
+  function generateMarksheet(student, options = {}) {
+
+    const result = calculateResult(student, options.passMark);
+
+    const rows = SUBJECTS.map(s => `
+      <tr>
+        <td>${SUBJECT_LABELS[s]}</td>
+        <td>${student[s] || 0}</td>
+        <td>${gradePoint(student[s] || 0)}</td>
+      </tr>
+    `).join('');
+
+    return shell("মার্কশিট", "doc-marksheet", `
+      <p><strong>নাম:</strong> ${student.name}</p>
+      <p><strong>রোল:</strong> ${student.roll}</p>
+
+      <table border="1" cellspacing="0" cellpadding="8">
+        <tr>
+          <th>বিষয়</th>
+          <th>নম্বর</th>
+          <th>গ্রেড পয়েন্ট</th>
+        </tr>
+        ${rows}
+      </table>
+
+      <p><strong>মোট:</strong> ${result.total}</p>
+      <p><strong>GPA:</strong> ${result.gpa}</p>
+      <p><strong>ফলাফল:</strong> ${result.status}</p>
+    `, options);
+  }
+
+  // =========================
+  // EXPORT
+  // =========================
+  return {
+    generateTabulationSheet,
+    generateMarksheet,
+    calculateResult
+  };
+
+})();
