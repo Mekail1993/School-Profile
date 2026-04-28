@@ -1,314 +1,218 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>বিদ্যালয় প্রোফাইল</title>
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"SolaimanLipi","Noto Sans Bengali",sans-serif;
-}
-
-body{
-    background:#f1f5f9;
-    color:#222;
-}
-
-header{
-    background:linear-gradient(135deg,#0066cc,#003d80);
-    color:#fff;
-    padding:25px;
-    text-align:center;
-}
-
-header h1{
-    font-size:34px;
-    margin-bottom:8px;
-}
-
-main{
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
-}
-
-.card{
-    background:#fff;
-    padding:25px;
-    margin-bottom:20px;
-    border-radius:14px;
-    box-shadow:0 8px 20px rgba(0,0,0,.08);
-}
-
-.card h2{
-    color:#0052a3;
-    margin-bottom:18px;
-    border-bottom:2px solid #e8eef8;
-    padding-bottom:8px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:16px;
-}
-
-label{
-    display:flex;
-    flex-direction:column;
-    font-weight:600;
-    gap:7px;
-}
-
-input,select,textarea{
-    padding:11px;
-    border:1px solid #cfd8e3;
-    border-radius:8px;
-    font-size:16px;
-}
-
-textarea{
-    resize:vertical;
-    min-height:90px;
-}
-
-button{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:10px;
-    background:#0066cc;
-    color:#fff;
-    font-size:20px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#004b99;
-}
-
-@media(max-width:600px){
-    header h1{
-        font-size:26px;
-    }
-}
-</style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>স্কুল প্রোফাইল</title>
+<link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
 <header>
-<h1>বাংলাদেশ বিদ্যালয় ব্যবস্থাপনা সিস্টেম</h1>
-<p>সম্পূর্ণ বিদ্যালয় প্রোফাইল ফরম</p>
+    <h1>বাংলাদেশ প্রাথমিক বিদ্যালয় পোর্টাল</h1>
+    <p>স্কুল প্রোফাইল</p>
 </header>
+
+<nav class="menu-bar">
+    <a href="index.html">ড্যাশবোর্ড</a>
+    <a href="school-profile.html">স্কুল প্রোফাইল</a>
+    <a href="teachers.html">শিক্ষক</a>
+    <a href="configure.html">সেটিংস</a>
+    <a href="students.html">শিক্ষার্থী এন্ট্রি</a>
+    <a href="marks.html">নম্বর এন্ট্রি</a>
+    <a href="class-routine.html">ক্লাস রুটিন</a>
+    <a href="leave-management.html">ছুটি ব্যবস্থাপনা</a>
+    <a href="official-pad.html">অফিসিয়াল প্যাড</a>
+    <a href="documents.html">ডকুমেন্টস</a>
+</nav>
 
 <main>
 
-<form id="schoolForm">
+<section class="card">
+<h2>স্কুল প্রোফাইল</h2>
 
-<div class="card">
-<h2>১. মৌলিক তথ্য</h2>
-<div class="grid">
-<label>বিদ্যালয়ের নাম<input type="text"></label>
-<label>বিদ্যালয়ের কোড / EIIN<input type="text"></label>
-<label>প্রতিষ্ঠার সাল<input type="text"></label>
-<label>বিদ্যালয়ের ধরন
-<select>
+<form id="schoolProfileForm" class="grid">
+
+<label>
+বিদ্যালয়ের নাম
+<input id="schoolName" name="schoolName" />
+</label>
+
+<label>
+EIIN / স্কুল কোড
+<input id="schoolCode" name="schoolCode" />
+</label>
+
+<label>
+প্রতিষ্ঠার সাল
+<input id="establishedYear" name="establishedYear" />
+</label>
+
+<label>
+বিদ্যালয়ের ধরন
+<select id="schoolType" name="schoolType">
 <option>সরকারি</option>
 <option>বেসরকারি</option>
 </select>
 </label>
-<label>স্তর
-<select>
-<option>প্রাথমিক</option>
-<option>মাধ্যমিক</option>
-</select>
-</label>
-<label>শিফট
-<select>
+
+<label>
+শিফট
+<select id="shiftType" name="shiftType">
 <option>এক শিফট</option>
 <option>দুই শিফট</option>
 </select>
 </label>
-<label>বিদ্যালয়ের লোগো<input type="file"></label>
-<label>বিদ্যালয়ের ছবি<input type="file"></label>
-</div>
-</div>
 
-<div class="card">
-<h2>২. অবস্থান তথ্য</h2>
-<div class="grid">
-<label>পূর্ণ ঠিকানা<input type="text"></label>
-<label>বিভাগ<input type="text"></label>
-<label>জেলা<input type="text"></label>
-<label>উপজেলা<input type="text"></label>
-<label>ইউনিয়ন<input type="text"></label>
-<label>গ্রাম<input type="text"></label>
-<label>ডাকঘর<input type="text"></label>
-<label>পোস্ট কোড<input type="text"></label>
-<label>গুগল ম্যাপ লিংক<input type="text"></label>
-<label>অক্ষাংশ<input type="text"></label>
-<label>দ্রাঘিমাংশ<input type="text"></label>
-</div>
-</div>
+<label>
+পূর্ণ ঠিকানা
+<input id="schoolAddress" name="schoolAddress" />
+</label>
 
-<div class="card">
-<h2>৩. যোগাযোগ তথ্য</h2>
-<div class="grid">
-<label>মোবাইল নম্বর<input type="text"></label>
-<label>বিকল্প নম্বর<input type="text"></label>
-<label>ইমেইল<input type="email"></label>
-<label>ওয়েবসাইট<input type="text"></label>
-<label>ফেসবুক পেজ<input type="text"></label>
-<label>অফিস সময়<input type="text"></label>
-</div>
-</div>
+<label>
+জেলা
+<input id="district" name="district" />
+</label>
 
-<div class="card">
-<h2>৪. প্রশাসনিক তথ্য</h2>
-<div class="grid">
-<label>প্রধান শিক্ষকের নাম<input type="text"></label>
-<label>সহকারী শিক্ষকের সংখ্যা<input type="number"></label>
-<label>অফিস সহকারীর সংখ্যা<input type="number"></label>
-<label>সভাপতির নাম<input type="text"></label>
-<label>কমিটির সদস্য সংখ্যা<input type="number"></label>
-<label>শিক্ষা অফিস<input type="text"></label>
-</div>
-</div>
+<label>
+উপজেলা
+<input id="upazila" name="upazila" />
+</label>
 
-<div class="card">
-<h2>৫. শিক্ষার্থী তথ্য</h2>
-<div class="grid">
-<label>মোট শিক্ষার্থী<input type="number"></label>
-<label>ছাত্র সংখ্যা<input type="number"></label>
-<label>ছাত্রী সংখ্যা<input type="number"></label>
-<label>প্রাক-প্রাথমিক<input type="number"></label>
-<label>১ম শ্রেণি<input type="number"></label>
-<label>২য় শ্রেণি<input type="number"></label>
-<label>৩য় শ্রেণি<input type="number"></label>
-<label>৪র্থ শ্রেণি<input type="number"></label>
-<label>৫ম শ্রেণি<input type="number"></label>
-<label>প্রতিবন্ধী শিক্ষার্থী<input type="number"></label>
-<label>ঝরে পড়া শিক্ষার্থী<input type="number"></label>
-</div>
-</div>
+<label>
+ইউনিয়ন
+<input id="union" name="union" />
+</label>
 
-<div class="card">
-<h2>৬. শিক্ষক তথ্য</h2>
-<div class="grid">
-<label>মোট শিক্ষক<input type="number"></label>
-<label>পুরুষ শিক্ষক<input type="number"></label>
-<label>মহিলা শিক্ষক<input type="number"></label>
-<label>প্রশিক্ষিত শিক্ষক<input type="number"></label>
-<label>খালি পদ<input type="number"></label>
-</div>
-</div>
+<label>
+যোগাযোগ নম্বর
+<input id="schoolPhone" name="schoolPhone" />
+</label>
 
-<div class="card">
-<h2>৭. অবকাঠামো</h2>
-<div class="grid">
-<label>মোট কক্ষ<input type="number"></label>
-<label>ব্যবহারযোগ্য কক্ষ<input type="number"></label>
-<label>টয়লেট সংখ্যা<input type="number"></label>
-<label>পানির উৎস<input type="text"></label>
-<label>বিদ্যুৎ আছে কি?
-<select>
-<option>হ্যাঁ</option>
-<option>না</option>
+<label>
+ইমেইল
+<input id="schoolEmail" name="schoolEmail" />
+</label>
+
+<label>
+ওয়েবসাইট
+<input id="schoolWebsite" name="schoolWebsite" />
+</label>
+
+<label>
+প্রধান শিক্ষক
+<input id="headTeacher" name="headTeacher" />
+</label>
+
+<label>
+সহকারী শিক্ষক সংখ্যা
+<input id="assistantTeacherCount" name="assistantTeacherCount" type="number" />
+</label>
+
+<label>
+মোট শিক্ষার্থী
+<input id="totalStudents" name="totalStudents" type="number" />
+</label>
+
+<label>
+ছাত্র সংখ্যা
+<input id="maleStudents" name="maleStudents" type="number" />
+</label>
+
+<label>
+ছাত্রী সংখ্যা
+<input id="femaleStudents" name="femaleStudents" type="number" />
+</label>
+
+<label>
+মোট শ্রেণিকক্ষ
+<input id="totalRooms" name="totalRooms" type="number" />
+</label>
+
+<label>
+ব্যবহারযোগ্য শ্রেণিকক্ষ
+<input id="usableRooms" name="usableRooms" type="number" />
+</label>
+
+<label>
+টয়লেট সংখ্যা
+<input id="toiletCount" name="toiletCount" type="number" />
+</label>
+
+<label>
+পানির ব্যবস্থা
+<input id="waterSource" name="waterSource" />
+</label>
+
+<label>
+বিদ্যুৎ সুবিধা
+<select id="electricity" name="electricity">
+<option>আছে</option>
+<option>নেই</option>
 </select>
 </label>
-<label>কম্পিউটার সংখ্যা<input type="number"></label>
-<label>প্রজেক্টর আছে কি?
-<select>
-<option>হ্যাঁ</option>
-<option>না</option>
+
+<label>
+কম্পিউটার সংখ্যা
+<input id="computerCount" name="computerCount" type="number" />
+</label>
+
+<label>
+লাইব্রেরি
+<select id="libraryStatus" name="libraryStatus">
+<option>আছে</option>
+<option>নেই</option>
 </select>
 </label>
-<label>লাইব্রেরি আছে কি?
-<select>
-<option>হ্যাঁ</option>
-<option>না</option>
+
+<label>
+খেলার মাঠ
+<select id="playgroundStatus" name="playgroundStatus">
+<option>আছে</option>
+<option>নেই</option>
 </select>
 </label>
-<label>খেলার মাঠ আছে কি?
-<select>
-<option>হ্যাঁ</option>
-<option>না</option>
-</select>
+
+<label>
+গত বছরের পাশের হার (%)
+<input id="passRate" name="passRate" />
 </label>
-<label>সীমানা প্রাচীর আছে কি?
-<select>
-<option>হ্যাঁ</option>
-<option>না</option>
-</select>
+
+<label>
+উপস্থিতির হার (%)
+<input id="attendanceRate" name="attendanceRate" />
 </label>
-</div>
-</div>
 
-<div class="card">
-<h2>৮. একাডেমিক তথ্য</h2>
-<div class="grid">
-<label>চলতি শিক্ষাবর্ষ<input type="text"></label>
-<label>পাঠদানের ভাষা<input type="text"></label>
-<label>সাপ্তাহিক ছুটি<input type="text"></label>
-<label>ক্লাস সময়<input type="text"></label>
-<label>পরীক্ষার ধরন<input type="text"></label>
-</div>
-</div>
-
-<div class="card">
-<h2>৯. ফলাফল তথ্য</h2>
-<div class="grid">
-<label>গত বছরের পাশের হার (%)<input type="text"></label>
-<label>উপস্থিতির হার (%)<input type="text"></label>
-<label>মেধাবী শিক্ষার্থী সংখ্যা<input type="number"></label>
-</div>
-</div>
-
-<div class="card">
-<h2>১০. অতিরিক্ত তথ্য</h2>
-<div class="grid">
-<label>জরুরি যোগাযোগ<input type="text"></label>
-<label>সিসিটিভি আছে কি?
-<select>
-<option>হ্যাঁ</option>
-<option>না</option>
-</select>
+<label>
+ফেসবুক পেজ
+<input id="facebookPage" name="facebookPage" />
 </label>
-<label>নিরাপত্তা প্রহরী আছে কি?
-<select>
-<option>হ্যাঁ</option>
-<option>না</option>
-</select>
+
+<label>
+গুগল ম্যাপ লিংক
+<input id="mapLink" name="mapLink" />
 </label>
-</div>
 
-<br>
-
-<label>বিদ্যালয়ের বিবরণ
-<textarea placeholder="বিদ্যালয়ের ইতিহাস, সাফল্য, বিশেষ তথ্য লিখুন"></textarea>
+<label>
+বিদ্যালয়ের লোগো
+<input id="schoolLogo" name="schoolLogo" type="file" />
 </label>
-</div>
 
-<div class="card">
-<button type="submit">বিদ্যালয় প্রোফাইল সংরক্ষণ করুন</button>
-</div>
+<label>
+বিদ্যালয়ের ছবি
+<input id="schoolImage" name="schoolImage" type="file" />
+</label>
+
+<button type="submit">স্কুল প্রোফাইল সংরক্ষণ</button>
 
 </form>
+</section>
 
 </main>
 
-<script>
-document.getElementById("schoolForm").addEventListener("submit",function(e){
-e.preventDefault();
-alert("বিদ্যালয়ের প্রোফাইল সফলভাবে সংরক্ষণ করা হয়েছে");
-});
-</script>
+<script src="documentGenerators.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
